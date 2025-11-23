@@ -1,0 +1,25 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="16" viewBox="0 0 24 16" version="1.1">
+    <title>yt_icon_mono_dark</title>
+    <defs>
+        <polygon id="path-1" points="0 0 24 0 24 16 0 16"/>
+    </defs>
+    <g id="Homepage-01-07" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Wood-+-Panel-B3" transform="translate(-1035.000000, -5568.000000)">
+            <g id="Group-23" transform="translate(0.000000, 5434.000000)">
+                <g id="Group-18" transform="translate(1031.000000, 57.000000)">
+                    <g id="Group-5" transform="translate(0.000000, 19.000000)">
+                        <g id="yt_icon_mono_dark" transform="translate(4.000000, 58.000000)">
+                            <mask id="mask-2" fill="white">
+                                <use xlink:href="#path-1"/>
+                            </mask>
+                            <g id="Clip-2"/>
+                            <path d="M9.54545455,11.3766452 L9.54545455,4.62335484 L15.8181818,8.00012903 L9.54545455,11.3766452 Z M21.3766364,0.477677419 C19.5050455,0 12,0 12,0 C12,0 4.49495455,0 2.62336364,0.477677419 C1.59081818,0.740516129 0.777545455,1.51496774 0.501545455,2.49845161 C0,4.28090323 0,8 0,8 C0,8 0,11.7189677 0.501545455,13.5015484 C0.777545455,14.4850323 1.59081818,15.2594839 2.62336364,15.5224516 C4.49495455,16 12,16 12,16 C12,16 19.5050455,16 21.3766364,15.5224516 C22.4091818,15.2594839 23.2224545,14.4850323 23.4984545,13.5015484 C24,11.7189677 24,8 24,8 C24,8 24,4.28090323 23.4984545,2.49845161 C23.2224545,1.51496774 22.4091818,0.740516129 21.3766364,0.477677419 Z" id="Fill-1" fill="#FFFFFF" mask="url(#mask-2)"/>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

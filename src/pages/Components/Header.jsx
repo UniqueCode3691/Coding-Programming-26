@@ -2,12 +2,15 @@ import React from 'react'
 import NMLogo from '../../assets/NearMeerLogo.png'
 import SearchLogo from "../../assets/search_image.svg"
 import MenuImage from "../../assets/menu.svg"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { UserAuth } from '../../context/AuthContext'
 
 function Header() {
   const [query, setQuery] = React.useState("")
   const [isOpen, setIsOpen] = React.useState(false)
   const [isSpinning, setIsSpinning] = React.useState(false)
+  const {session, signOut} = UserAuth()
+  const navigate = useNavigate()
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -21,6 +24,16 @@ function Header() {
             setIsSpinning(false);
         }, 500);
         console.log(isOpen)
+  }
+
+  const handleSignOut = async (e) => {
+    e.preventDefault()
+    try {
+      await signOut()
+      navigate('/')
+    } catch (err) {
+      console.error(err.message)
+    }
   }
 
   return (
@@ -38,10 +51,12 @@ function Header() {
                       <img src={SearchLogo} alt="searchlogo" />
                     </button>
                 </div>
-            <div className='my-auto flex flex-row'>
-              <p className='sm:text-xl font-semibold my-auto'>Hi, asdfdasfdf</p>
+            {session && <div className='my-auto flex flex-row'>
+              <p className='sm:text-xl font-semibold my-auto'>Hi, {session?.user?.user_metadata?.name}</p>
               <div className='w-7 sm:w-12 h-7 sm:h-12  rounded-full bg-black text-white ml-2 sm:ml-5 sm:mr-5'></div>
-            </div>
+              <p onClick={handleSignOut} className='my-auto mx-2 font-semibold text-lg hover:cursor-pointer'>Sign Out</p>
+            </div>}
+            {!session && <Link to="/sign-in" className='my-auto ml-2 mr-5 font-semibold text-xl hover:cursor-pointer'>Sign In</Link>}
             <button onClick={toggleNavbar} className={`cursor-pointer sm:hidden`}>
               <img src={MenuImage} className={`w-7 sm:w-10 h-7 sm:hidden sm:h-10 mr-5 ${isSpinning ? 'animate-spin' : ''} transition-transform duration-1000 ease-in-out`} alt="menu image"/>
             </button>

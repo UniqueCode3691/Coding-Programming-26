@@ -6,7 +6,7 @@ const containerStyle = {
   height: "100%",
 };
 
-const defaultCenter = { lat: 37.7749, lng: -122.4194 }; // Fallback: San Francisco
+const defaultCenter = { lat: 37.7749, lng: -122.4194 };
 
 const UserLocationMap = () => {
   const [userLocation, setUserLocation] = useState(null);

@@ -58,10 +58,42 @@ export const AuthContextProvider = ({children}) => {
             console.error("There was an error signing out: ", error.message)
         }
     }
-    return (
-        <AuthContext.Provider value={{session, signUpNewUser, signInUser, signOut}}>
-            {children}
-        </AuthContext.Provider>
+
+    const signInWithGoogle = async () => {
+        try {
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin 
+                }
+            });
+                if (error) throw error;
+                return { success: true, data };
+            } catch (error) {
+                console.error("Google login error:", error.message);
+                return { success: false, error: error.message };
+            }
+        }
+    const sendMagicLink = async (email) => {
+        try {
+            const { error } = await supabase.auth.signInWithOtp({
+                email: email,
+                options: {
+                    emailRedirectTo: window.location.origin, 
+                },
+            });
+            if (error) throw error;
+            return { success: true };
+        } catch (error) {
+            console.error("OTP Error:", error.message);
+            return { success: false, error: error.message };
+        }
+    };
+
+        return (
+            <AuthContext.Provider value={{ session, signUpNewUser, signInUser, signInWithGoogle, signOut, sendMagicLink }}>
+                {children}
+            </AuthContext.Provider>
     )
 }
 

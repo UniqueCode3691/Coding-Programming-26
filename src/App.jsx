@@ -5,6 +5,7 @@ import SignUp from './pages/SignUp'
 import Profile from './pages/Profile'
 import { AuthContextProvider } from './context/AuthContext'
 import PrivateRoute from './pages/PrivateRoute'
+import AboutUs from './pages/AboutUs'
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/about-us" element={<AboutUs />}></Route>
         </Routes>
       </BrowserRouter>
     </AuthContextProvider>

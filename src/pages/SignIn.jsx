@@ -3,12 +3,14 @@ import LoginImage from '../assets/neighborhood.jpg'
 import NMImage from '../assets/NearMeerLogoImgOnly.png'
 import { Link, useNavigate } from 'react-router-dom'
 import { UserAuth } from '../context/AuthContext'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 const SignIn = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState(null)
   const navigate = useNavigate()
   const { session, signInUser, signInWithGoogle, sendMagicLink } = UserAuth()
   const [isMagicLinkMode, setIsMagicLinkMode] = useState(false);
@@ -28,9 +30,13 @@ const SignIn = () => {
 
   const handleSignIn = async (e) => {
       e.preventDefault()
+      if (!captchaToken) {
+        setError("Please complete the security check.")
+        return
+      }
       setLoading(true)
       try {
-        const result = await signInUser(email, password)
+        const result = await signInUser(email, password, captchaToken)
   
         if (result.success)
         {
@@ -69,7 +75,7 @@ const SignIn = () => {
             <p className='text-white text-xl'>Discover unique local businesses, read authentic reviews, and connect with your neighbors in a meaningful way.</p>
           </div>
         </div>
-        <div className='flex flex-col w-1/2 h-screen bg-olivetan'>
+        <div className='flex flex-col w-1/2 h-screen bg-olivetan overflow-y-auto'>
           <p className='text-4xl font-semibold mx-auto mt-15'>Welcome back, neighbor!</p>
           <p className='mt-3 mx-auto text-xl text-olivegreen'>Sign in to see what's happening in your community today!</p>
           {linkSent ? (
@@ -84,9 +90,15 @@ const SignIn = () => {
             <input onChange={(e) => setEmail(e.target.value)} placeholder='Enter your email:' type="email" className="w-100 p-4 px-5 bg-white focus:outline-none focus:ring-0 focus:border-transparent rounded-full focus-within:border-2 hover:border-2 border-olivegreen"/>
             <div className='flex flex-row justify-between'>
               <p className='ml-2 font-semibold text-md mb-2 mt-5'>Password:</p>
-              <button onClick={handleMagicLink} className='text-red-700 mt-5'>Forgot Password?</button>
+              <button onClick={handleMagicLink} type="button" className='text-red-700 mt-5'>Forgot Password?</button>
             </div>
             <input onChange={(e) => setPassword(e.target.value)} placeholder='Enter your password:' type="password" className=" w-100 p-4 px-5  bg-white focus:outline-none focus:ring-0 focus:border-transparent rounded-full focus-within:border-2 hover:border-2 border-olivegreen" />
+            <div className='mx-auto mt-6'>
+                <Turnstile 
+                    siteKey={import.meta.env.VITE_CAPTCHA_SITE_KEY}
+                    onSuccess={(token) => setCaptchaToken(token)} 
+                />
+            </div>
             <button type='submit' disabled={loading} className='text-xl mt-10 bg-olivegreen py-3 rounded-full font-semibold transform transition-transform duration-200 ease-in-out hover:scale-110'>
               {loading ? "Signing in..." : "Login"}
             </button>

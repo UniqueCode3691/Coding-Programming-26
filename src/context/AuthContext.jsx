@@ -6,13 +6,14 @@ const AuthContext = createContext()
 export const AuthContextProvider = ({children}) => {
     const [session, setSession] = useState(undefined)
 
-    const signUpNewUser = async (name, email, password) => {
+    const signUpNewUser = async (name, email, password, captchaToken) => {
         const {data, error} = await supabase.auth.signUp({
             email: email, password: password,
             options: {
                 data: {
                     name: name,
-                }
+                },
+                captchaToken: captchaToken,
             }
         })
         if (error) {

@@ -61,14 +61,6 @@ function Header() {
               <img src={MenuImage} className={`w-7 sm:w-10 h-7 sm:hidden sm:h-10 mr-5 ${isSpinning ? 'animate-spin' : ''} transition-transform duration-1000 ease-in-out`} alt="menu image"/>
             </button>
         </div>
-        <div className={` absolute right-0 flex flex-col font-semibold items-center text-lg ${isOpen ? "translate-x-0" : "translate-x-full"} transform transition-transform duration-500 ease-in-out z-50`}>
-          <Link to="/" className='text-white py-2 px-10 transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90 w-full text-center block bg-olivesepia'>Reviews</Link>
-          <Link to="/" className='text-white py-2 px-10 transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90 w-full text-center block bg-olivesepia'>Businesses</Link>
-          <Link to="/" className='text-white py-2 px-10 transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90 w-full text-center block bg-olivesepia'>Local Events</Link>
-          <Link to="/" className='text-white py-2 px-10 transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90 w-full text-center block bg-olivesepia'>Deals</Link>
-          <Link to="/" className='text-white py-2 px-10 transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90 w-full text-center block bg-olivesepia'>About Us</Link>
-          <Link to="/" className='rounded-b-xl text-white py-2 px-10 transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90 w-full text-center block bg-olivesepia'>For Businesses</Link>
-        </div>
         <div className='bg-olivesepia flex-row justify-evenly font-semibold text-lg hidden sm:flex'>
           <Link to="/" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Reviews</Link>
           <Link to="/" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Businesses</Link>

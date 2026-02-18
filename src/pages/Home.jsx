@@ -6,6 +6,7 @@ import CardSwap, { Card } from './Components/CardSwap'
 import Star from './Components/Star';
 import UserLocation from "./Components/UserLocation";
 import Footer from './Components/Footer'
+import Chatbot from './Components/Chatbot';
 
 const Home = () => {
   return (
@@ -15,7 +16,7 @@ const Home = () => {
           <div className='relative h-80 sm:h-100'>
             <img src={bostonImage} alt="image of boston" className='w-screen h-80 sm:h-100 object-cover' />
             {/* dark overlay */}
-            <div className='absolute top-0 left-0 w-screen h-80 sm:h-100 bg-black opacity-70'></div>
+            <div className='absolute top-0 left-0 w-screen h-100 bg-black opacity-70'></div>
             <Link className='absolute top-45 sm:top-60 left-10 sm:left-100 rounded-3xl w-30 sm:w-45 text-center py-3 text-white font-semibold bg-olivedarkgreen text-xl hover:opacity-90 transform transition-transform duration-200 ease-in-out hover:scale-110'>Businesses</Link>
             <Link className='absolute top-45 sm:top-60 right-10 sm:right-100 rounded-3xl w-30 sm:w-45 text-center py-3 text-white font-semibold bg-olivedarkgreen text-xl hover:opacity-90 transform transition-transform duration-200 ease-in-out hover:scale-110'>Reviews</Link>
             <p className='absolute whitespace-nowrap top-20 left-1/2 -translate-x-1/2 font-bold text-xl sm:text-5xl text-white'>Find your next favorite spot today!</p>
@@ -75,6 +76,7 @@ const Home = () => {
         <div className='p-15 bg-olivetan'>
           <UserLocation />
         </div>
+        <Chatbot />
         <Footer />
     </>
   )

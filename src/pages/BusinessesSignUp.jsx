@@ -58,7 +58,7 @@ export default function BusinessesSignUp() {
             <h2 className="text-3xl font-bold tracking-tight text-olivedarkgreen">Grow your business with NearMeer.</h2>
             <p className="mt-3 text-olivedarkgreen/60">Join a community of local entrepreneurs and reach customers in your neighborhood.</p>
           </div>
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSignUp}>
             <div>
               <label className="block text-sm font-semibold leading-6 text-olivedarkgreen ml-1" htmlFor="business-name">Business Name</label>
               <div className="mt-2">

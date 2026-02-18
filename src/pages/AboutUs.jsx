@@ -1,14 +1,16 @@
 import React from 'react'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
+import NamanPic from '../assets/NamanPic.webp'
+import SalilPic from '../assets/SalilPic.webp'
+import SamPic from '../assets/SamPic.webp'
 
 export default function AboutUs() {
   return (
     <>
       <Header />
 
-      <main className="mx-auto max-w-6xl px-6 pb-20 bg-olivetan text-olivedarkgreen">
-        {/* Hero */}
+      <main className="mx-auto max-w-6xl px-6 pb-20 bg-white text-olivedarkgreen">
         <section className="pt-4">
           <div
             className="relative overflow-hidden rounded-[34px] shadow-soft"
@@ -39,7 +41,6 @@ export default function AboutUs() {
           </div>
         </section>
 
-        {/* Core Philosophy */}
         <section className="pt-14">
           <div className="text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-olivegreen">Our Core Philosophy</p>
@@ -48,7 +49,7 @@ export default function AboutUs() {
             </h2>
           </div>
 
-          <div className="mt-10 grid items-center gap-10 rounded-[28px] bg-olivetan p-8 sm:p-10 md:grid-cols-2">
+          <div className="mt-10 grid items-center gap-10 rounded-[28px] bg-olivetan/50 border border-olivetan p-8 sm:p-10 md:grid-cols-2">
             <div
               className="h-56 w-full overflow-hidden rounded-2xl"
               style={{
@@ -74,37 +75,33 @@ export default function AboutUs() {
             </div>
           </div>
         </section>
-
-        {/* Stats */}
         <section className="pt-12">
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-olivedarkgreen/10 bg-white p-7 text-center shadow-sm">
+            <div className="rounded-2xl border border-olivesepia/30 bg-olivetan p-7 text-center shadow-sm hover:shadow-md transition-shadow">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center">
-                <span className="material-symbols-outlined text-olivegreen">storefront</span>
+                <span className="material-symbols-outlined text-olivesepia">storefront</span>
               </div>
-              <p className="text-xs font-medium text-olivegreen">Local Shops Joined</p>
-              <p className="mt-2 text-2xl font-extrabold text-olivedarkgreen">1,200+</p>
+              <p className="text-xs font-medium text-olivesepia">Local Shops Joined</p>
+              <p className="mt-2 text-2xl font-extrabold text-olivegreen">1,200+</p>
             </div>
 
-            <div className="rounded-2xl border border-olivedarkgreen/10 bg-white p-7 text-center shadow-sm">
+            <div className="rounded-2xl border border-olivesepia/30 bg-olivetan p-7 text-center shadow-sm hover:shadow-md transition-shadow">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center">
-                <span className="material-symbols-outlined text-olivegreen">verified</span>
+                <span className="material-symbols-outlined text-olivesepia">verified</span>
               </div>
-              <p className="text-xs font-medium text-olivegreen">Trusted Reviews</p>
-              <p className="mt-2 text-2xl font-extrabold text-olivedarkgreen">25k+</p>
+              <p className="text-xs font-medium text-olivesepia">Trusted Reviews</p>
+              <p className="mt-2 text-2xl font-extrabold text-olivegreen">25k+</p>
             </div>
 
-            <div className="rounded-2xl border border-olivedarkgreen/10 bg-white p-7 text-center shadow-sm">
+            <div className="rounded-2xl border border-olivesepia/30 bg-olivetan p-7 text-center shadow-sm hover:shadow-md transition-shadow">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center">
-                <span className="material-symbols-outlined text-olivegreen">group</span>
+                <span className="material-symbols-outlined text-olivesepia">group</span>
               </div>
-              <p className="text-xs font-medium text-olivegreen">Active Neighbors</p>
-              <p className="mt-2 text-2xl font-extrabold text-olivedarkgreen">100k+</p>
+              <p className="text-xs font-medium text-olivesepia">Active Neighbors</p>
+              <p className="mt-2 text-2xl font-extrabold text-olivegreen">100k+</p>
             </div>
           </div>
         </section>
-
-        {/* Meet the Neighbors */}
         <section className="pt-14">
           <h2 className="text-3xl font-bold leading-tight tracking-tight text-olivedarkgreen">Meet the Neighbors</h2>
           <p className="mt-1 text-lg text-olivegreen">The passionate team behind the NearMeer platform.</p>
@@ -114,7 +111,7 @@ export default function AboutUs() {
               <div
                 className="size-48 overflow-hidden rounded-full border-4 border-olivegreen p-1"
                 style={{
-                  backgroundImage: "url(SalilPic.webp)",
+                  backgroundImage: `url(${SalilPic})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}
@@ -124,7 +121,7 @@ export default function AboutUs() {
               <div className="flex flex-col gap-1">
                 <h4 className="text-xl font-bold">Salil Karkhanis</h4>
                 <p className="text-sm font-medium text-olivegreen">Lead Designer</p>
-                <p className="mt-2 px-4 text-sm text-olivedarkgreen/55">Enthusiactic about making the world more discoverable, Salil leads the design vision for NearMeer, ensuring every pixel connects neighbors to their local gems.</p>
+                <p className="mt-2 px-4 text-sm text-olivedarkgreen/55">Enthusiastic about making the world more discoverable, Salil leads the design vision for NearMeer, ensuring every pixel connects neighbors to their local gems.</p>
               </div>
             </div>
 
@@ -132,7 +129,7 @@ export default function AboutUs() {
               <div
                 className="size-48 overflow-hidden rounded-full border-4 border-olivegreen/40 p-1"
                 style={{
-                  backgroundImage: "url(SamPic.webp)",
+                  backgroundImage: `url(${SamPic})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}
@@ -142,7 +139,7 @@ export default function AboutUs() {
               <div className="flex flex-col gap-1">
                 <h4 className="text-xl font-bold">Samanyu Mergu</h4>
                 <p className="text-sm font-medium text-olivegreen">Chief Engineering</p>
-                <p className="mt-2 px-4 text-sm text-olivedarkgreen/55">Passionate about building scalable and user-friendly platforms, Samanyu drives NearMeer's technical innovation.</p>
+                <p className="mt-2 px-4 text-sm text-olivedarkgreen/55">Passionate about building scalable and user-friendly platforms, Sam drives NearMeer's technical innovation, making sure every page is meaningful and accessible.</p>
               </div>
             </div>
 
@@ -150,7 +147,7 @@ export default function AboutUs() {
               <div
                 className="size-48 overflow-hidden rounded-full border-4 border-olivegreen/40 p-1"
                 style={{
-                  backgroundImage: "url(NamanBaboon.webp)",
+                  backgroundImage: `url(${NamanPic})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}
@@ -159,22 +156,20 @@ export default function AboutUs() {
 
               <div className="flex flex-col gap-1">
                 <h4 className="text-xl font-bold">Naman Kapoor</h4>
-                <p className="text-sm font-medium text-olivegreen">Curry Muncher</p>
-                <p className="mt-2 px-4 text-sm text-olivedarkgreen/55">kinda just eats food all day</p>
+                <p className="text-sm font-medium text-olivegreen">Head of Community & Growth</p>
+                <p className="mt-2 px-4 text-sm text-olivedarkgreen/55">Driven by the belief that every neighborhood has a story to tell, Naman fosters the heartbeat of NearMeer, ensuring no hidden gem stays hidden for long.</p>
               </div>
             </div>
           </div>
         </section>
-
-        {/* CTA */}
         <section className="pt-14">
           <div className="overflow-hidden rounded-[32px] bg-olivedarkgreen px-6 py-14 text-center text-white shadow-soft sm:px-10">
             <h2 className="text-4xl font-extrabold leading-tight tracking-tight">Ready to discover your<br />neighborhood?</h2>
             <p className="mx-auto mt-5 max-w-xl text-sm text-white/75">Join thousands of neighbors who are already discovering the best local secrets.</p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a className="rounded-full bg-olivegreen px-7 py-3 text-sm font-semibold text-olivetan hover:brightness-95" href="#">Get Started</a>
-              <a className="rounded-full border border-white/25 bg-white/0 px-7 py-3 text-sm font-semibold text-white hover:bg-white/5" href="#">Contact Us</a>
+              <a className="rounded-full bg-olivesepia px-7 py-3 text-sm font-semibold text-white hover:bg-olivesepia/90 transition-colors" href="#">Get Started</a>
+              <a className="rounded-full border-2 border-white bg-transparent px-7 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-colors" href="#">Contact Us</a>
             </div>
           </div>
         </section>

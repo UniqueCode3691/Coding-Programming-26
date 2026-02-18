@@ -5,7 +5,7 @@ import expandIcon from '../assets/icons/expand.png'
 import { useState } from 'react'
 import { UserAuth } from '../context/AuthContext'
 import { Turnstile } from '@marsidev/react-turnstile'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function BusinessesSignUp() {
     const [name, setName] = useState("")
@@ -104,12 +104,12 @@ export default function BusinessesSignUp() {
               <button className="flex w-full justify-center rounded-full bg-olivesepia px-6 py-4 text-sm font-bold leading-6 text-white shadow-lg hover:bg-olivesepia/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olivesepia transition-all active:scale-[0.98]" type="submit">
                 Create Business Account
               </button>
-              <p className='text-red-800 text-md'>{error}</p>
+              {error && <p className='text-red-700 mx-auto pt-10'>{error}</p>}
             </div>
           </form>
           <p className="mt-10 text-center text-sm text-olivedarkgreen/60">
             Already have an account?
-            <a className="font-semibold leading-6 text-olivesepia hover:text-olivesepia/80 ml-1" href="#">Log in here</a>
+            <Link className="font-semibold leading-6 text-olivesepia hover:text-olivesepia/80 ml-1" to="/businesses-sign-in">Log in here</Link>
           </p>
           <p className="mt-6 text-center text-xs text-olivedarkgreen/40 px-6">
             By creating an account, you agree to NearMeer's 

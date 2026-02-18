@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
 import { UserAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { supabase } from '../SupabaseClient'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 export default function BusinessesSignIn() {
   const [showPassword, setShowPassword] = useState(false)
@@ -18,24 +20,30 @@ export default function BusinessesSignIn() {
     setLoading(true);
     setError("");
 
-    try {
-        const result = await signInUser(email, password, captchaToken);
+    if (!captchaToken) {
+      setError("Please complete the security check.");
+      setLoading(false);
+      return;
+    }
 
-        if (result.success) {
+    try {
+      const result = await signInUser(email, password, captchaToken);
+
+      if (result.success) {
         if (result.accountType !== 'business') {
-            await supabase.auth.signOut();
-            setError("This is a Business account. Please use the Business Login page.");
-            setLoading(false);
-            return;
+          await supabase.auth.signOut();
+          setError("This is not a Business account. Please use the regular login page.");
+          setLoading(false);
+          return;
         }
         navigate('/');
-        } else {
+      } else {
         setError(result.error);
-        }
+      }
     } catch (err) {
-        setError("An unexpected error occurred.");
+      setError("An unexpected error occurred.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
   return (
@@ -64,22 +72,26 @@ export default function BusinessesSignIn() {
                 </button>
               </div>
             </div>
+            <div className='mx-auto mt-6'>
+              <Turnstile
+                siteKey={import.meta.env.VITE_CAPTCHA_SITE_KEY}
+                onSuccess={(token) => setCaptchaToken(token)}
+              />
+            </div>
             <button onClick={handleSignIn} className="w-full py-4 bg-olivesepia text-white font-bold text-lg rounded-full hover:bg-olivesepia/90 hover:shadow-lg hover:shadow-olivesepia/30 active:scale-[0.98] transition-all" type="submit">
               Business Login
             </button>
           </form>
+          {error && <p className='text-red-700 mx-auto pt-10'>{error}</p>}
           <div className="relative my-10">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-olivesepia/20"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-olivedarkgreen/60 font-medium">Or continue with business accounts</span>
             </div>
           </div>
           <div className="mt-12 text-center">
             <p className="text-olivedarkgreen/60">
               New to NearMeer? 
-              <a className="text-olivesepia font-bold hover:underline ml-1" href="#">Register your business</a>
+              <Link className="text-olivesepia font-bold hover:underline ml-1" to="/businesses-sign-up">Register your business</Link>
             </p>
           </div>
         </div>

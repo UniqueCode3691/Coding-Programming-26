@@ -18,27 +18,26 @@ export default function BusinessesSignUp() {
       const navigate = useNavigate();
 
       const handleSignUp = async (e) => {
-      e.preventDefault()
-      if (!captchaToken) {
-        setError("Please complete the security check.")
-        return
-      }
-      setLoading(true)
-      try {
-        const result = await signUpNewUser(name, email, password, captchaToken, 'business')
-
-        if (result.success)
-        {
-          navigate('/')
+        e.preventDefault();
+        setError("");
+        if (!captchaToken) {
+          setError("Please complete the security check.");
+          return;
         }
-      } catch (error)
-      {
-        setError(error.message)
-      } finally
-      {
-        setLoading(false)
+        setLoading(true);
+        try {
+          const result = await signUpNewUser(name, email, password, captchaToken, 'business');
+          if (result.success) {
+            navigate('/');
+          } else {
+            setError(result.error?.message || result.error || "Sign up failed. Please try again.");
+          }
+        } catch (error) {
+          setError(error.message || "An unexpected error occurred.");
+        } finally {
+          setLoading(false);
+        }
       }
-    }
 
   const handleGoogleSignIn = async () => {
     setLoading(true)

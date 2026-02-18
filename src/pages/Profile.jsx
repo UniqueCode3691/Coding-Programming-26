@@ -8,8 +8,8 @@ const Profile = () => {
   const [bio, setBio] = useState("");
   const [selected, setSelected] = useState("r");
   const updateProfile = async () => {
-  if (!bio || bio.length > 150) return;
-  const { data, error } = await supabase.auth.updateUser({
+    if (!bio || bio.length > 150) return;
+    const { data, error } = await supabase.auth.updateUser({
       data: { 
         bio: bio,
       }

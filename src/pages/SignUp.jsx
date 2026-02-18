@@ -23,7 +23,7 @@ const SignUp = () => {
       }
       setLoading(true)
       try {
-        const result = await signUpNewUser(name, email, password, captchaToken)
+        const result = await signUpNewUser(name, email, password, captchaToken, 'user')
   
         if (result.success)
         {

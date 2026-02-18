@@ -6,6 +6,18 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 });
 
+export const getCoords = () => {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      (err) => reject(err),
+      { enableHighAccuracy: true }
+    );
+  });
+};
+
+const userCoords = await getCoords().catch(() => ({ lat: "unknown", lng: "unknown" }));
+
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -29,7 +41,7 @@ export default function Chatbot() {
 
         const systemPrompt = {
           role: "system",
-          content: "You are NearMeer AI, a helpful chatbot for the NearMeer platform. NearMeer helps users find local businesses, services, and recommendations. Provide suggestions for businesses, locations, or related advice based on user queries. Keep responses friendly, concise, and relevant to local discovery."
+          content: "You are NearMeer AI, a helpful chatbot for the NearMeer platform. NearMeer helps users find local businesses, services, and recommendations. Provide suggestions for businesses, locations, or related advice based on user queries. Keep responses friendly, concise, and relevant to local discovery. The user's location is " + userCoords.lat + ", " + userCoords.lng + ". Use this information to provide location-specific recommendations when appropriate."
         };
 
         const response = await openai.chat.completions.create({

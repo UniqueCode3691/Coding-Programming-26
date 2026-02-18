@@ -40,7 +40,10 @@ const SignIn = () => {
   
         if (result.success)
         {
-          navigate('/')
+          await supabase.auth.signOut();
+          setError("This is a Business account. Please use the Business Login page.");
+          setLoading(false);
+          return;
         }
       } catch (error)
       {

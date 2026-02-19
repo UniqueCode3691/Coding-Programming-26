@@ -13,6 +13,7 @@ import BusinessesSignIn from './pages/BusinessesSignIn'
 import BusinessesSignUp from './pages/BusinessesSignUp'
 import NeighborRoute from './pages/NeighborRoute'
 import BusinessRoute from './pages/BusinessRoute'
+import AddProperty from './pages/AddProperty'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -25,13 +26,14 @@ export default function App() {
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/profile" element={<NeighborRoute><Profile /></NeighborRoute>} />
-          <Route path="/about-us" element={<AboutUs />}></Route>
-          <Route path="/for-businesses" element={<ForBusinesses />}></Route>
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/for-businesses" element={<ForBusinesses />} />
           <Route path="/deals" element={<NeighborRoute><Deals /></NeighborRoute>} />
           <Route path="/businesses" element={<NeighborRoute><Businesses /></NeighborRoute>} />
-          <Route path="/businesses-dashboard" element={<BusinessesDashboard />} />
-          <Route path="/businesses-sign-in" element={<BusinessesSignIn />}></Route>
-          <Route path="/businesses-sign-up" element={<BusinessesSignUp />}></Route>
+          <Route path="/businesses-dashboard" element={<BusinessRoute><BusinessesDashboard /></BusinessRoute>} />
+          <Route path="/businesses-sign-in" element={<BusinessesSignIn />} />
+          <Route path="/businesses-sign-up" element={<BusinessesSignUp />} />
+          <Route path="/add-property" element={<AddProperty />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

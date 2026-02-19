@@ -27,9 +27,9 @@ export default function App() {
           <Route path="/profile" element={<NeighborRoute><Profile /></NeighborRoute>} />
           <Route path="/about-us" element={<AboutUs />}></Route>
           <Route path="/for-businesses" element={<ForBusinesses />}></Route>
-          <Route path="/deals" element={<Deals />}></Route>
-          <Route path="/businesses" element={<Businesses />}></Route>
-          <Route path="/businesses-dashboard" element={<BusinessesDashboard />}></Route>
+          <Route path="/deals" element={<NeighborRoute><Deals /></NeighborRoute>} />
+          <Route path="/businesses" element={<NeighborRoute><Businesses /></NeighborRoute>} />
+          <Route path="/businesses-dashboard" element={<BusinessRoute><BusinessesDashboard /></BusinessRoute>} />
           <Route path="/businesses-sign-in" element={<BusinessesSignIn />}></Route>
           <Route path="/businesses-sign-up" element={<BusinessesSignUp />}></Route>
           <Route path="*" element={<NotFound />} />

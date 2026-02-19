@@ -36,7 +36,7 @@ export default function BusinessesSignIn() {
           setLoading(false);
           return;
         }
-        navigate('/');
+        navigate('/businesses-dashboard');
       } else {
         setError(result.error);
       }
@@ -91,7 +91,7 @@ export default function BusinessesSignIn() {
           <div className="mt-12 text-center">
             <p className="text-olivedarkgreen/60">
               New to NearMeer? 
-              <Link className="text-olivesepia font-bold hover:underline ml-1" to="/businesses-sign-up">Register your business</Link>
+              <Link to="/businesses-sign-up" className="text-olivesepia font-bold hover:underline ml-1">Register your business</Link>
             </p>
           </div>
         </div>

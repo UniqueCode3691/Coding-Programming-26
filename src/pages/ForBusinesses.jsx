@@ -8,6 +8,8 @@ import barchartIcon from '../assets/icons/barchart.png'
 import trendingupIcon from '../assets/icons/trendingup.png'
 import checkcircleIcon from '../assets/icons/checkcircle.png'
 import Star from './Components/Star'
+import Chatbot from './Components/Chatbot';
+
 
 export default function ForBusinesses() {
   return (
@@ -183,7 +185,7 @@ export default function ForBusinesses() {
           </div>
         </section>
       </main>
-
+      <Chatbot />
       <Footer />
     </div>
   )

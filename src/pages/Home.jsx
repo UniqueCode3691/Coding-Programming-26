@@ -7,8 +7,11 @@ import Star from './Components/Star';
 import UserLocation from "./Components/UserLocation";
 import Footer from './Components/Footer'
 import Chatbot from './Components/Chatbot';
+import { useEffect, useState } from 'react';
+import L from 'leaflet';
 
 const Home = () => {
+  const [coords, setCoords] = useState({ lat: 42.3601, lng: -71.0589 }); // Default to Boston
   return (
     <>
         <Header />
@@ -74,7 +77,7 @@ const Home = () => {
             </div>
         </div>
         <div className='p-15 bg-olivetan'>
-          <UserLocation />
+          <UserLocation onLocationFound={(c) => setCoords(c)} coords={coords} />
         </div>
         <Chatbot />
         <Footer />

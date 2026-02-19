@@ -13,23 +13,73 @@ const userLocationIcon = L.divIcon({
   iconSize: [32, 32],
 });
 
-function LocationMarker() {
-  const [position, setPosition] = useState(null);
+const getOverpassBusinesses = async (lat, lng) => {
+    const radius = 4000;
+    const query = `
+      [out:json][timeout:25];
+      (
+        node["amenity"](around:${radius},${lat},${lng});
+        node["shop"](around:${radius},${lat},${lng});
+      );
+      out body;
+    `;
+    const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+    
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.elements;
+    } catch (err) {
+      console.error("Overpass Error:", err);
+      return [];
+    }
+  };
+
+
+function OverpassMarkers({ userCoords }) {
+  const [businesses, setBusinesses] = useState([]);
+
+  useEffect(() => {
+    if (!userCoords.lat || !userCoords.lng) return;
+
+    const loadData = async () => {
+      const elements = await getOverpassBusinesses(userCoords.lat, userCoords.lng);
+      setBusinesses(elements);
+    };
+    loadData();
+  }, [userCoords]);
+
+  return (
+    <>
+      {businesses.map((biz, idx) => (
+        <Marker key={idx} position={[biz.lat, biz.lon]}>
+          <Popup>
+            <div className="font-sans">
+              <h3 className="font-bold">{biz.tags.name || "Local Business"}</h3>
+              <p className="text-gray-600 text-sm capitalize">
+                {(biz.tags.shop || biz.tags.amenity || 'Store').replace('_', ' ')}
+              </p>
+              <button className="mt-2 bg-olivegreen text-white px-2 py-1 rounded text-xs">
+                Invite to NearMeer
+              </button>
+            </div>
+          </Popup>
+        </Marker>
+      ))}
+    </>
+  );
+}
+
+function LocationMarker({ onLocationFound }) {
   const map = useMapEvents({
     locationfound(e) {
-      setPosition(e.latlng);
       map.flyTo(e.latlng, 15);
-    },
-    locationerror() {
-      alert("Location access denied.");
+      if (onLocationFound) {
+        onLocationFound({ lat: e.latlng.lat, lng: e.latlng.lng });
+      }
     },
   });
-
-  return position === null ? null : (
-    <Marker position={position} icon={userLocationIcon}>
-      <Popup>You are here</Popup>
-    </Marker>
-  );
+  return null; 
 }
 
 function LocateButton() {
@@ -37,37 +87,31 @@ function LocateButton() {
   return (
     <button 
       onClick={() => map.locate()}
-      className="absolute bottom-6 right-6 z-[1000] bg-white p-3 rounded-xl shadow-2xl border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all group"
+      className="absolute bottom-6 right-6 z-[1000] bg-white p-3 rounded-xl shadow-2xl border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all"
     >
-      <Navigation className="w-6 h-6 text-indigo-600 group-hover:rotate-12 transition-transform" />
+      <Navigation className="w-6 h-6 text-blue-600" />
     </button>
   );
 }
 
-export default function MapApp() {
-  const defaultCenter = [43.011589, -78.710838]; // Will East HS
+export default function UserLocation({ onLocationFound, coords }) {
+  const defaultCenter = [43.011589, -78.710838]; 
 
   return (
-    <div className="flex flex-col h-screen w-full">
-      <div className="mb-10 text-center">
-        <h1 className="text-3xl font-bold text-olivegreen">Local Explorer</h1>
-        <p className="text-olivedarkgreen font-semibold text-lg">Find your location and explore nearby restaurants.</p>
+    <div className="flex flex-col h-[600px] w-full">
+      <div className="mb-6 text-center">
+        <h2 className="text-3xl font-bold text-olivegreen">Explore Your Neighborhood</h2>
+        <p className="text-gray-600">See who's nearby and invite them to the community.</p>
       </div>
-
       <div className="relative flex-1 rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
-        <MapContainer 
-          center={defaultCenter} 
-          zoom={13} 
-          className="h-full w-full z-0"
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-
-          <LocationMarker />
+        <MapContainer center={defaultCenter} zoom={13} className="h-full w-full">
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          
+          {coords && <Marker position={[coords.lat, coords.lng]} icon={userLocationIcon} />}
+          
+          <LocationMarker onLocationFound={onLocationFound} />
+          <OverpassMarkers userCoords={coords} />
           <LocateButton />
-
         </MapContainer>
       </div>
     </div>

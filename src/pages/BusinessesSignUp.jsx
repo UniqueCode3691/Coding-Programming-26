@@ -28,7 +28,7 @@ export default function BusinessesSignUp() {
         try {
           const result = await signUpNewUser(name, email, password, captchaToken, 'business');
           if (result.success) {
-            navigate('/');
+            navigate('/businesses-dashboard');
           } else {
             setError(result.error?.message || result.error || "Sign up failed. Please try again.");
           }
@@ -108,7 +108,7 @@ export default function BusinessesSignUp() {
           </form>
           <p className="mt-10 text-center text-sm text-olivedarkgreen/60">
             Already have an account?
-            <Link className="font-semibold leading-6 text-olivesepia hover:text-olivesepia/80 ml-1" to="/businesses-sign-in">Log in here</Link>
+            <Link to="/businesses-sign-in" className="font-semibold leading-6 text-olivesepia hover:text-olivesepia/80 ml-1">Log in here</Link>
           </p>
           <p className="mt-6 text-center text-xs text-olivedarkgreen/40 px-6">
             By creating an account, you agree to NearMeer's 

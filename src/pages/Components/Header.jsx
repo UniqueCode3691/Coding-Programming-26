@@ -36,7 +36,7 @@ function Header() {
       setProfileOpen(false)
       navigate('/')
     } catch (err) {
-      console.error(err.message)
+      console.log("Error signing out: ")
     }
   }
 
@@ -72,7 +72,7 @@ function Header() {
                       <div className='px-4 py-2 border-b border-gray-100 md:hidden'>
                           <p className='font-bold text-olivegreen'>{session?.user?.user_metadata?.name}</p>
                       </div>
-                      <Link to="/profile" className='block px-4 py-2 hover:bg-olivetan transition-colors'>My Profile</Link>
+                      {session?.user?.user_metadata?.account_type === 'user' ? <Link to="/profile" className='block px-4 py-2 hover:bg-olivetan transition-colors'>My Profile</Link> : <Link to="/businesses-dashboard" className='block px-4 py-2 hover:bg-olivetan transition-colors'>My Business Profile</Link>}
                       <button 
                           onClick={handleSignOut}
                           className='w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 font-semibold transition-colors'
@@ -88,7 +88,6 @@ function Header() {
             </button>
         </div>
         <div className='bg-olivesepia flex-row justify-evenly font-semibold text-lg hidden sm:flex'>
-          <Link to="/" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Reviews</Link>
           <Link to="/businesses" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Businesses</Link>
           <Link to="/" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Local Events</Link>
           <Link to="/deals" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Deals</Link>

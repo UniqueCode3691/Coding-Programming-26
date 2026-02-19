@@ -4,7 +4,6 @@ import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
 import Profile from './pages/Profile'
 import { AuthContextProvider } from './context/AuthContext'
-import PrivateRoute from './pages/PrivateRoute'
 import AboutUs from './pages/AboutUs'
 import ForBusinesses from './pages/ForBusinesses'
 import Deals from './pages/Deals'
@@ -12,6 +11,10 @@ import Businesses from './pages/Businesses'
 import BusinessesDashboard from './pages/BusinessesDashboard'
 import BusinessesSignIn from './pages/BusinessesSignIn'
 import BusinessesSignUp from './pages/BusinessesSignUp'
+import NeighborRoute from './pages/NeighborRoute'
+import BusinessRoute from './pages/BusinessRoute'
+import AddProperty from './pages/AddProperty'
+import NotFound from './pages/NotFound'
 
 export default function App() {
   return (
@@ -22,14 +25,16 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-          <Route path="/about-us" element={<AboutUs />}></Route>
-          <Route path="/for-businesses" element={<ForBusinesses />}></Route>
-          <Route path="/deals" element={<Deals />}></Route>
-          <Route path="/businesses" element={<Businesses />}></Route>
-          <Route path="/businesses-dashboard" element={<BusinessesDashboard />}></Route>
-          <Route path="/businesses-sign-in" element={<BusinessesSignIn />}></Route>
-          <Route path="/businesses-sign-up" element={<BusinessesSignUp />}></Route>
+          <Route path="/profile" element={<NeighborRoute><Profile /></NeighborRoute>} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/for-businesses" element={<ForBusinesses />} />
+          <Route path="/deals" element={<NeighborRoute><Deals /></NeighborRoute>} />
+          <Route path="/businesses" element={<NeighborRoute><Businesses /></NeighborRoute>} />
+          <Route path="/businesses-dashboard" element={<BusinessRoute><BusinessesDashboard /></BusinessRoute>} />
+          <Route path="/businesses-sign-in" element={<BusinessesSignIn />} />
+          <Route path="/businesses-sign-up" element={<BusinessesSignUp />} />
+          <Route path="/add-property" element={<AddProperty />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthContextProvider>

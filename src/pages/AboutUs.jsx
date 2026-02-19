@@ -70,8 +70,6 @@ export default function AboutUs() {
                 around the corner. Our platform transforms how people interact
                 with their local economy.
               </p>
-
-              <a className="mt-6 inline-flex rounded-full bg-olivegreen px-4 py-2 text-xs font-semibold text-olivetan shadow-sm hover:brightness-95" href="#">Read Our Vision</a>
             </div>
           </div>
         </section>

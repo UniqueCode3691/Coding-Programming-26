@@ -4,6 +4,7 @@ import NMImage from '../assets/NearMeerLogoImgOnly.png'
 import { Link, useNavigate } from 'react-router-dom'
 import { UserAuth } from '../context/AuthContext'
 import { Turnstile } from '@marsidev/react-turnstile'
+import { supabase } from '../SupabaseClient'
 
 const SignIn = () => {
   const [email, setEmail] = useState("")
@@ -29,33 +30,42 @@ const SignIn = () => {
   };
 
   const handleSignIn = async (e) => {
-      e.preventDefault()
-      if (!captchaToken) {
-        setError("Please complete the security check.")
-        return
-      }
-      setLoading(true)
-      try {
-        const result = await signInUser(email, password, captchaToken)
-  
-        if (result.success)
-        {
-          navigate('/')
+    e.preventDefault();
+    if (!captchaToken) {
+      setError("Please complete the security check.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const result = await signInUser(email, password, captchaToken);
+      if (result.success) {
+        if (result.accountType === 'business') {
+          await supabase.auth.signOut();
+          setError("This is a Business account. Please use the Business Login page.");
+          setLoading(false);
+          return;
         }
-      } catch (error)
-      {
-        setError(error.message)
-      } finally
-      {
-        setLoading(false)
+        navigate('/');
+      } else {
+        setError(result.error);
       }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleGoogleSignIn = async () => {
-    try {
-        await signInWithGoogle();
-    } catch (error) {
-        setError("Google sign-in failed.");
+    setLoading(true);
+    setError("");
+    const result = await signInWithGoogle();
+    if (!result.success) {
+      setError(result.error);
+      setLoading(false);
+    } else {
+      navigate('/');
     }
   };
 

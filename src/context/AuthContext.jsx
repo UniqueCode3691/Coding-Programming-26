@@ -6,12 +6,13 @@ const AuthContext = createContext()
 export const AuthContextProvider = ({children}) => {
     const [session, setSession] = useState(undefined)
 
-    const signUpNewUser = async (name, email, password, captchaToken) => {
+    const signUpNewUser = async (name, email, password, captchaToken, type) => {
         const {data, error} = await supabase.auth.signUp({
             email: email, password: password,
             options: {
                 data: {
                     name: name,
+                    account_type: type,
                 },
                 captchaToken: captchaToken,
             }
@@ -24,24 +25,24 @@ export const AuthContextProvider = ({children}) => {
     }
 
     const signInUser = async (email, password, captchaToken) => {
-        try{
-            const {data, error} = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-                options: {
-                    captchaToken: captchaToken,
-                },
-            })
-            if (error) {
-                console.error(error.message)
-                return {success: false, error: error.message}
-            }
-            console.log("Signed in", data)
-            return {success: true, data}
-        } catch(error) {
-            console.error(error)
-        }
-    }
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+            options: { captchaToken }
+        });
+
+        if (error) return { success: false, error: error.message };
+
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('account_type')
+            .eq('id', data.user.id)
+            .single();
+
+        if (profileError) return { success: false, error: "Profile not found." };
+
+        return { success: true, user: data.user, accountType: profile.account_type };
+    };
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session }}) => {

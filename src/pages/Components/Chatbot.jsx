@@ -65,14 +65,14 @@ export default function Chatbot() {
             </button>
           </div>
 
-          <div className="flex-1 p-4 overflow-y-auto bg-olivetan">
+          <div className="flex-1 p-4 overflow-y-auto bg-white">
             {messages.map((msg, index) => (
               <div
                 key={index}
                 className={`p-3 rounded-lg mb-2 max-w-48 shadow-sm ${
                   msg.sender === "user"
                     ? "bg-olivegreen text-white ml-auto"
-                    : "bg-white text-olivedarkgreen"
+                    : "bg-olivetan text-olivedarkgreen"
                 }`}
               >
                 {msg.text}

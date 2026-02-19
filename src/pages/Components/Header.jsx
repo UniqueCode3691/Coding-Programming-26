@@ -15,7 +15,10 @@ function Header() {
 
   const handleSearch = (e) => {
     e.preventDefault()
-    console.log('Searching for:', query)
+    if (query.trim()) {
+      navigate(`/businesses?search=${encodeURIComponent(query)}`)
+      setQuery("")
+    }
   }
 
   function toggleNavbar() {
@@ -43,17 +46,18 @@ function Header() {
             <Link to="/">
               <img src={NMLogo} alt="NM Logo" className='sm:ml-3 sm:w-45 w-30 hover:opacity-90 transform transition-transform duration-200 ease-in-out hover:scale-110' />
             </Link>
-                <div className="bg-white hidden sm:flex rounded-full sm:p-1.5 flex-row focus-within:border-2 hover:border-2 border-olivegreen">
+                <form onSubmit={handleSearch} className="bg-white hidden sm:flex rounded-full sm:p-1.5 flex-row focus-within:border-2 hover:border-2 border-olivegreen">
                     <input
                     type="text"
                     placeholder="What's on your mind today?..."
-                    onChange={(e) => handleSearch(e)}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
                     className="sm:w-100 p-2 pl-5 focus:outline-none focus:ring-0 focus:border-transparent"
                     />
-                    <button className="w-5 mr-5">
+                    <button type="submit" className="w-5 mr-5 cursor-pointer">
                       <img src={SearchLogo} alt="searchlogo" />
                     </button>
-                </div>
+                </form>
               {session && <div className='my-auto flex flex-row mr-5'>
                 <p className='sm:text-xl font-semibold my-auto'>Hi, {session?.user?.user_metadata?.name?.split(' ')[0]}</p>
                   <div 
@@ -85,7 +89,7 @@ function Header() {
         </div>
         <div className='bg-olivesepia flex-row justify-evenly font-semibold text-lg hidden sm:flex'>
           <Link to="/" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Reviews</Link>
-          <Link to="/" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Businesses</Link>
+          <Link to="/businesses" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Businesses</Link>
           <Link to="/" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Local Events</Link>
           <Link to="/deals" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>Deals</Link>
           <Link to="/about-us" className='p-2 text-white transform transition-transform duration-200 ease-in-out hover:scale-110 active:scale-110 hover:opacity-90'>About Us</Link>

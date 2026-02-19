@@ -54,7 +54,7 @@ export default function Chatbot() {
         const botMessage = { text: botText, sender: "bot" };
         setMessages(prev => [...prev, botMessage]);
       } catch (error) {
-        console.error("AI API error:", error);
+        console.error("AI API error");
         const errorMessage = { text: "Sorry, I'm having trouble responding right now. Please try again.", sender: "bot" };
         setMessages(prev => [...prev, errorMessage]);
       } finally {

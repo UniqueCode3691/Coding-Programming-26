@@ -18,7 +18,7 @@ export const AuthContextProvider = ({children}) => {
             }
         })
         if (error) {
-            console.error("there was a problem signing up: ", error.message)
+            console.error("There was a problem signing up")
             return { success: false, error }
         }
         return { success: true, data }
@@ -60,7 +60,7 @@ export const AuthContextProvider = ({children}) => {
     const signOut = async () => {
         const {error} = await supabase.auth.signOut()
         if (error) {
-            console.error("There was an error signing out: ", error.message)
+            console.error("There was an error signing out")
         }
     }
 
@@ -75,7 +75,7 @@ export const AuthContextProvider = ({children}) => {
                 if (error) throw error;
                 return { success: true, data };
             } catch (error) {
-                console.error("Google login error:", error.message);
+                console.error("Google login error");
                 return { success: false, error: error.message };
             }
         }
@@ -90,7 +90,7 @@ export const AuthContextProvider = ({children}) => {
             if (error) throw error;
             return { success: true };
         } catch (error) {
-            console.error("OTP Error:", error.message);
+            console.error("OTP Error");
             return { success: false, error: error.message };
         }
     };

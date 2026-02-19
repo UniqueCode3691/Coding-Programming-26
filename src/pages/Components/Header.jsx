@@ -36,7 +36,7 @@ function Header() {
       setProfileOpen(false)
       navigate('/')
     } catch (err) {
-      console.error(err.message)
+      console.log("Error signing out: ")
     }
   }
 

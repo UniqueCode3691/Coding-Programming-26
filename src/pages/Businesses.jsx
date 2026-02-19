@@ -1,233 +1,459 @@
-import React from 'react'
-import { useSearchParams } from 'react-router-dom'
-import Header from './Components/Header'
-import Footer from './Components/Footer'
+import React, { useState } from 'react';
+import Header from './Components/Header';
+import Footer from './Components/Footer';
 
-export default function Businesses() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const searchQuery = searchParams.get('search') || ''
-  const [localSearch, setLocalSearch] = React.useState(searchQuery)
-  
-  // Business data
+function Businesses() {
+  const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState('Most Relevant');
+  const [selectedCategories, setSelectedCategories] = useState(['Restaurants']);
+  const [selectedRating, setSelectedRating] = useState('4');
+  const [selectedPrice, setSelectedPrice] = useState('$$');
+  const [distance, setDistance] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [appliedFilters, setAppliedFilters] = useState({
+    categories: ['Restaurants'],
+    rating: '4',
+    price: '$$',
+    distance: 10,
+  });
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (query.trim()) {
+      // Add search filtering logic here if needed
+      setQuery('');
+    }
+  };
+
   const businesses = [
     {
       id: 1,
-      name: 'Olive Garden Bistro',
-      category: 'Italian Restaurant',
-      description: 'Authentic Italian cuisine with fresh ingredients and a cozy atmosphere. Family-owned since 1995.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC4hPyKOPVmdl1ooMm3Emg4FGC-usKqWGGdqkVV6styJIf6nOerGxTzTotAUp2DPTriUsBB8nAwhjfxixP1D1UKzN2vynQIBQqQtwEuzgaUOqqJIehfrUY9W7qyUbgifDXHVTSOjuMdGDSS3fSVLitjBG4Lb-u7nG5fQ122-2dPe_UCK3a_ORFvuuYy7QkPX5XvH1ZJkcyKABwUOaYMd74aKwBf2lQrjtQss8qfA1_o8Xa8nko5skzAJ4O95pk-VhID0Ho-YX4LZSQP',
-      distance: '0.5 mi',
-      rating: 4.8,
-      reviews: 120,
-      badge: 'Verified'
+      name: 'Buffalo Brickhouse Grill',
+      rating: 4.5,
+      categories: ['Restaurants', 'Burgers'],
+      price: '$$',
+      distance: 2.4,
+      status: 'OPEN NOW',
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCMu6C6iL8WQLzmY1z-1rFP2bk2Jwfr_Dk4DT5UdztX5BuCPjooZXKREcdrza3xISOgpwTJQ5xF0Kyw84t2ClaSPC8G6y5Q32eMLYj_0Txi4mtqn0RLsGuKEUGCqF9w_w54o2JrWH0rm3-L6DDYU8wtFr124ikRxqwbItf4iZsjs_DQJ6YDmwnZQ3Jm6d0hgIc7cf2t2zGj3aNBQ2ljAaSW_jR5rbXrwqcpigNsw3iWwr7Y5x21VKixuWq0ZhkrC4rL15wSASw4TzIo',
+      description: 'Fantastic meals with generous serving sizes. The staff was welcoming and made sure we were taken care of quickly.',
+      tags: ['BURGERS', 'PUB'],
     },
     {
       id: 2,
-      name: 'The Burger Shack',
-      category: 'American Diner',
-      description: 'Juicy burgers, crispy fries, and milkshakes made with local dairy. Open late for your cravings.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBga8kBRph3c7-Xl4wGdR1HtuZpfYCdv23AMRDn7-_EKrz9RY-KX1L5oiY4nobYASRUMroRz8ImAB0bQE9E_ICMTUumbUPh3sgY9DD9ixGNgleLzft-h8wisVJGdV9lIEr_8jKComnB3LdNE1w_mWPGofWtw-34WeI8IKv6dClE-idMgyXLi9iGIUSvI-flwgHXHmVi7jlfVddMYDDUAuPR9dfUoxGlTgmteEnAjXTn0VjNfeTme9P97XnBgsLZ9LB0p6cee2FkRyKx',
-      distance: '1.2 mi',
-      rating: 4.6,
-      reviews: 85,
-      badge: 'Featured'
+      name: 'Queen City Kitchen',
+      rating: 5.0,
+      categories: ['Restaurants'],
+      price: '$$$',
+      distance: 0.8,
+      status: 'OPEN NOW',
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAtJY42YX6IxrLKW_ckwOF78XivWkLcmbP-JkDenncRm_mJAnPYWN5VeJGrudKyomNIdecMQSuC6CpG13d3BPCeIu4Bw5jApPF8r9Ud2jokDsXhitxLPE7HLOsuOy28LvC-WX1CsFph0r3B9T1dlUJGmVEljox1RtQRlYtrESLCsFaRqzqplFPKwYHlJ5Zoh7iJuVfBxTQl5zX-RvsQ43SQtdjjiOiqsOqu7_mgQ721XfActp3G3Oe7-ujN3IqaBR_vYs2eefZVpqIg',
+      description: 'Upscale dining experience with locally sourced ingredients. Perfect for date nights and special occasions.',
+      tags: ['UPSCALE', 'ITALIAN'],
     },
     {
       id: 3,
-      name: 'Main St. Coffee',
-      category: 'Coffee Shop',
-      description: 'Artisan coffee, fresh pastries, and a community hub for locals. Free Wi-Fi and cozy seating.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCK5DkFLWHoLrblHxwkSg83CH7_mmkz-g4Z3hJ4jIvVtEuAaZ27wYE0O9CVW6ltcPl5jqj48JOdtYDnNfnhL7ypwE09P_kkpOAoELGvGIqowN8CD_mHrESnvmfCmNa40Vq-gicFKWaBGDkfgj3sbrKgIhEYuNI66p0TxOyfhYzVTg1Js0QdzMI0IihktZip6rR1ydwx7HRvx3u9FzdSG5FfB2TZGFyvC43D3wtAgLn1AZrhvnAlm1BFd9-njvXmtwqFd2j_bMLfMMG6',
-      distance: '0.2 mi',
-      rating: 4.9,
-      reviews: 200,
-      badge: null
+      name: 'Niagara Street Smokehouse',
+      rating: 4.0,
+      categories: ['Restaurants'],
+      price: '$$',
+      distance: 1.5,
+      status: 'CLOSED',
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDtRHO_Ae-d55aCPokPX4014jPEfPss-FYbbr0-j16XOffHtJCTwidoFYwF0NpWiZzeCCNMricR_S8lOIvKuHK5twhJCZXGYkNtH-H4IqV0TStRnoYX88N_qScGhJYuvqqgZzLnEYu-JCAuKFFg4on_FbFtr-h8ydKr19ClMGibwZIS80RqyR7gFy4dCZ42hsOHMzoLjiMK2C8ylCkuxbDVdG9GH4rG3qu4coSE8uEQY4q0H5orOhnZ0GcU2wCwqWbOlb18bW0GpTeP',
+      description: 'The best BBQ in town! Their brisket is smoked for 14 hours and falls right off the bone. A must-try!',
+      tags: ['BBQ', 'SMOKEHOUSE'],
     },
     {
       id: 4,
-      name: 'Green Leaf Salon',
-      category: 'Beauty Salon',
-      description: 'Professional hair styling, manicures, and spa treatments using eco-friendly products.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDPrTo5QjIDnNtl7OVY70_t5az7vIpXysSiEU2AtgLBsAsQ0xICJ4a2ahbmAEy54iqqm_bpCMHgS9a6gg2lQ4R4CiIjjhjJYGHuRuJMiYFTGC-v9RK3DOG_KEpT_Hpnc1Rfuk0yQCBv8xblxa8TXMKP6GFmaPi-PlzYU3LTcJq_yJ_G0plPEcSZ3hnBfBA9P5_mX0BaFW7_Sn46N-xPHvwHtJfZy-m6qdTliO5eEfaRlaLJNTnW5pUGzoXaG-KV8Mn4At1XsJxvA2ef',
-      distance: '2.5 mi',
-      rating: 4.7,
-      reviews: 95,
-      badge: null
-    },
-    {
-      id: 5,
-      name: 'Community Co-op',
-      category: 'Grocery Store',
-      description: 'Locally sourced organic produce, bulk goods, and community-focused shopping experience.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDtZagjenlbvMbO9hrEwdsdl8nl6N5Oq4pAIoG_9mCvsIoXn4CXTh98--9H00Rm_pfDUwLvAAo9YRQ9fzP7BaQiP1Kds2QWXOLnTGvnJISrkwE2aPNbUBFUoY65E6Q0YFR5_uzmowkxhzc9P-DA6-kehGrePNKhSayh8wGxt-tbGFBsyrDW1B-m9-GgBA0e6dQwIdZ68bHnCCpm41j48F_HFQxfJYuJLbnVWX3GhXZeY4ys96uT9lZxKZQEw9pYpQ-vUDRFc1uEVUSr',
-      distance: '1.8 mi',
-      rating: 4.5,
-      reviews: 150,
-      badge: null
-    },
-    {
-      id: 6,
-      name: 'Local Legal Services',
-      category: 'Law Firm',
-      description: 'Specializing in small business law, contracts, and community legal aid. Serving the area for 20 years.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCk41SCmvLJfIZJQuCtpanu2gOBpkpid2WpnHAQ291Dmawdcg3dKtTbzywIfqKSnTJPTt2_X_bgg1ccoaByLK4VuqJiG5vZfTe-cs_v8MxmUBmk235YCijlGnzU-lLmGRZbDc4lxEg-tD5p7ww5qlOym63X2ZD7s2OKHBkMJY1L7U9wi6VL_sPMmEujUeEccM_oxL7etgny7p3omNIHQAUxBSrL3ygIjWoVNZTuQkQwbGcDU_KtTcPJBeHDBs6y-3_7Btraw_zBDM2E',
-      distance: '3.1 mi',
+      name: 'The Coffee Corner',
       rating: 4.8,
-      reviews: 60,
-      badge: null
+      categories: ['Restaurants'],
+      price: '$',
+      distance: 3.1,
+      status: 'OPEN NOW',
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCj8cSDr94lKs78AFhBnVvpLRBZ3bljolvi1zXLda6fKCy84DG2B9kcLtpowGlNqsaMOGNL_8pZzis_gMR9zCaDWZ39wWBqsEqokT9kZRvijCVQIBFO7yZ36_bvvz6mmLugwGI4f2tH4rP9CfuqEOz4Q5KpWRLHrq319rXVOit7TVWwqA9EImOjMLW-PEyJJAYdL1YIo7Ijhnjgavx9btNMW2o142yOBLrHsSmWJr9vQd87BbYtGYbMATgVWPuhuR3P5u5OqLaYHUhS',
+      description: 'Quiet little spot perfect for working or catching up with friends. Amazing house-roasted beans.',
+      tags: ['COFFEE', 'BAKERY'],
+    },
+  ];
+
+  const getPriceValue = (price) => {
+    return price.length;
+  };
+
+  const sortBusinesses = (businesses) => {
+    const sorted = [...businesses];
+    switch (sortBy) {
+      case 'Highest Rated':
+        return sorted.sort((a, b) => b.rating - a.rating);
+      case 'Most Reviewed':
+        return sorted.sort((a, b) => b.rating - a.rating);
+      case 'Newest':
+        return sorted.sort((a, b) => b.id - a.id);
+      case 'Most Relevant':
+      default:
+        return sorted;
     }
-  ]
+  };
 
-  // Filter businesses based on search query
-  const filteredBusinesses = businesses.filter(business =>
-    business.name.toLowerCase().includes(localSearch.toLowerCase()) ||
-    business.category.toLowerCase().includes(localSearch.toLowerCase()) ||
-    business.description.toLowerCase().includes(localSearch.toLowerCase())
-  )
+  const filterBusinesses = () => {
+    return businesses.filter(business => {
+      const categoryMatch = business.categories.some(cat =>
+        appliedFilters.categories.includes(cat)
+      );
 
-  const handlePageSearch = (e) => {
-    e.preventDefault()
-    setSearchParams({ search: localSearch })
-  }
+      const ratingMatch = business.rating >= parseInt(appliedFilters.rating);
 
-  const clearSearch = () => {
-    setLocalSearch('')
-    setSearchParams({})
-  }
+      const priceMatch = getPriceValue(business.price) <= getPriceValue(appliedFilters.price);
+
+      const distanceMatch = business.distance <= appliedFilters.distance;
+
+      return categoryMatch && ratingMatch && priceMatch && distanceMatch;
+    });
+  };
+
+  const handleApplyFilters = () => {
+    setAppliedFilters({
+      categories: selectedCategories.length > 0 ? selectedCategories : ['Restaurants'],
+      rating: selectedRating,
+      price: selectedPrice,
+      distance: distance,
+    });
+    setCurrentPage(1);
+  };
+
+  const filteredBusinesses = filterBusinesses();
+  const businessesPerPage = 4;
+  const sortedBusinesses = sortBusinesses(filteredBusinesses);
+  const paginatedBusinesses = sortedBusinesses.slice(
+    (currentPage - 1) * businessesPerPage,
+    currentPage * businessesPerPage
+  );
+
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (i <= Math.floor(rating)) {
+        stars.push(<span key={i} className="material-icons text-sm">star</span>);
+      } else if (i - rating < 1) {
+        stars.push(<span key={i} className="material-icons text-sm">star_half</span>);
+      } else {
+        stars.push(<span key={i} className="material-icons text-sm">star_outline</span>);
+      }
+    }
+    return stars;
+  };
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  const handleRatingClick = (rating) => {
+    setSelectedRating(rating);
+  };
+
+  const handlePriceClick = (price) => {
+    setSelectedPrice(price);
+  };
+
+  const handleDistanceChange = (e) => {
+    setDistance(parseInt(e.target.value));
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
+  };
 
   return (
-    <div className="w-full min-h-screen flex flex-col">
+    <div className="bg-olivetan dark:bg-olivedarkgreen text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
       <Header />
-      
-      <main className="flex flex-1 justify-center py-8 bg-white">
-        <div className="layout-content-container flex flex-col max-w-[1200px] flex-1 px-4 md:px-10">
-          {/* Page Heading */}
-          <div className="flex flex-wrap justify-between gap-3 mb-8">
-            <div className="flex min-w-72 flex-col gap-3">
-              <h1 className="text-olivegreen text-4xl font-black leading-tight tracking-[-0.033em]">Local Businesses Directory</h1>
-              {localSearch && (
-                <p className="text-olivedarkgreen text-lg font-normal">Search results for: <span className="font-bold">"{localSearch}"</span></p>
-              )}
-              {!localSearch && (
-                <p className="text-olivedarkgreen text-lg font-normal leading-normal max-w-2xl">Discover and support your neighborhood businesses. Browse our curated list of trusted local establishments.</p>
-              )}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div className="w-full mb-6 sm:hidden">
+          <form onSubmit={handleSearch} className="bg-white rounded-full p-1.5 flex flex-row focus-within:border-2 hover:border-2 border-olivegreen">
+            <input
+              type="text"
+              placeholder="What's on your mind today?..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full p-2 pl-5 focus:outline-none focus:ring-0 focus:border-transparent"
+            />
+            <button type="submit" className="mr-5 cursor-pointer text-olivegreen hover:opacity-70">
+              <span className="material-icons">search</span>
+            </button>
+          </form>
+        </div>
+        <aside className="w-full lg:w-64 space-y-8 shrink-0">
+          <div>
+            <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-olivetan">
+              <span className="material-icons text-olivetan">tune</span> Filters
+            </h3>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold mb-3 uppercase tracking-wider text-olivetan">Category</label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      checked={selectedCategories.includes('Restaurants')}
+                      onChange={() => handleCategoryChange('Restaurants')}
+                      className="rounded text-olivegreen focus:ring-olivegreen border-gray-300"
+                      type="checkbox"
+                    />
+                    <span className="group-hover:text-olivegreen transition">Restaurants</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      checked={selectedCategories.includes('Shopping')}
+                      onChange={() => handleCategoryChange('Shopping')}
+                      className="rounded text-olivegreen focus:ring-olivegreen border-gray-300"
+                      type="checkbox"
+                    />
+                    <span className="group-hover:text-olivegreen transition">Shopping</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      checked={selectedCategories.includes('Nightlife')}
+                      onChange={() => handleCategoryChange('Nightlife')}
+                      className="rounded text-olivegreen focus:ring-olivegreen border-gray-300"
+                      type="checkbox"
+                    />
+                    <span className="group-hover:text-olivegreen transition">Nightlife</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      checked={selectedCategories.includes('Active Life')}
+                      onChange={() => handleCategoryChange('Active Life')}
+                      className="rounded text-olivegreen focus:ring-olivegreen border-gray-300"
+                      type="checkbox"
+                    />
+                    <span className="group-hover:text-olivegreen transition">Active Life</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold mb-3 uppercase tracking-wider text-olivetan">Rating</label>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => handleRatingClick('1')}
+                    className={`w-10 h-10 rounded border flex items-center justify-center transition ${
+                      selectedRating === '1'
+                        ? 'border-olivegreen bg-olivegreen text-white'
+                        : 'border-gray-200 dark:border-gray-700 hover:bg-olivegreen hover:text-white'
+                    }`}
+                  >
+                    1+
+                  </button>
+                  <button
+                    onClick={() => handleRatingClick('2')}
+                    className={`w-10 h-10 rounded border flex items-center justify-center transition ${
+                      selectedRating === '2'
+                        ? 'border-olivegreen bg-olivegreen text-white'
+                        : 'border-gray-200 dark:border-gray-700 hover:bg-olivegreen hover:text-white'
+                    }`}
+                  >
+                    2+
+                  </button>
+                  <button
+                    onClick={() => handleRatingClick('3')}
+                    className={`w-10 h-10 rounded border flex items-center justify-center transition ${
+                      selectedRating === '3'
+                        ? 'border-olivegreen bg-olivegreen text-white'
+                        : 'border-gray-200 dark:border-gray-700 hover:bg-olivegreen hover:text-white'
+                    }`}
+                  >
+                    3+
+                  </button>
+                  <button
+                    onClick={() => handleRatingClick('4')}
+                    className={`w-10 h-10 rounded border flex items-center justify-center transition ${
+                      selectedRating === '4'
+                        ? 'border-olivegreen bg-olivegreen text-white'
+                        : 'border-gray-200 dark:border-gray-700 hover:bg-olivegreen hover:text-white'
+                    }`}
+                  >
+                    4+
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold mb-3 uppercase tracking-wider text-olivetan">Price</label>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => handlePriceClick('$')}
+                    className={`px-3 h-10 rounded border flex items-center justify-center transition ${
+                      selectedPrice === '$'
+                        ? 'border-olivegreen bg-olivegreen text-white'
+                        : 'border-gray-200 dark:border-gray-700 hover:bg-olivegreen hover:text-white'
+                    }`}
+                  >
+                    $
+                  </button>
+                  <button
+                    onClick={() => handlePriceClick('$$')}
+                    className={`px-3 h-10 rounded border flex items-center justify-center transition ${
+                      selectedPrice === '$$'
+                        ? 'border-olivegreen bg-olivegreen text-white'
+                        : 'border-gray-200 dark:border-gray-700 hover:bg-olivegreen hover:text-white'
+                    }`}
+                  >
+                    $$
+                  </button>
+                  <button
+                    onClick={() => handlePriceClick('$$$')}
+                    className={`px-3 h-10 rounded border flex items-center justify-center transition ${
+                      selectedPrice === '$$$'
+                        ? 'border-olivegreen bg-olivegreen text-white'
+                        : 'border-gray-200 dark:border-gray-700 hover:bg-olivegreen hover:text-white'
+                    }`}
+                  >
+                    $$$
+                  </button>
+                  <button
+                    onClick={() => handlePriceClick('$$$$')}
+                    className={`px-3 h-10 rounded border flex items-center justify-center transition ${
+                      selectedPrice === '$$$$'
+                        ? 'border-olivegreen bg-olivegreen text-white'
+                        : 'border-gray-200 dark:border-gray-700 hover:bg-olivegreen hover:text-white'
+                    }`}
+                  >
+                    $$$$
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold mb-3 uppercase tracking-wider text-olivetan">Distance</label>
+                <input
+                  className="w-full accent-olivegreen"
+                  max="50"
+                  min="1"
+                  type="range"
+                  value={distance}
+                  onChange={handleDistanceChange}
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>1 mile</span>
+                  <span className="font-semibold">{distance} miles</span>
+                  <span>50 miles</span>
+                </div>
+              </div>
+              <button
+                onClick={handleApplyFilters}
+                className="w-full py-3 bg-olivegreen text-white font-bold rounded hover:opacity-90 transition"
+              >
+                Apply Filters
+              </button>
             </div>
           </div>
-
-          {/* Search & Filters */}
-          <div className="bg-olivetan p-6 rounded-xl shadow-sm mb-8 border border-olivetan">
-            <div className="mb-6">
-              <label className="flex flex-col w-full h-12">
-                <form onSubmit={handlePageSearch} className="flex w-full flex-1 items-stretch rounded-lg h-full border-2 border-transparent focus-within:border-olivegreen transition-all">
-                  <div className="text-olivegreen flex border-none bg-olivetan items-center justify-center pl-4 rounded-l-lg">
-                    <span className="material-symbols-outlined">search</span>
-                  </div>
-                  <input 
-                    type="text"
-                    value={localSearch}
-                    onChange={(e) => setLocalSearch(e.target.value)}
-                    className="form-input flex w-full min-w-0 flex-1 border-none bg-olivetan text-olivegreen focus:ring-0 h-full placeholder:text-olivedarkgreen px-4 text-base font-normal leading-normal" 
-                    placeholder="Search for businesses (e.g. Restaurant, Salon, Plumber)"
-                  />
-                  <button type="submit" className="bg-olivesepia text-white px-6 rounded-r-lg font-semibold hover:bg-olivesepia/90 transition-colors">Search</button>
-                </form>
-              </label>
+          <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 h-48 relative shadow-sm">
+            <img alt="Map Preview" className="w-full h-full object-cover opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNTFLFp5VOd59t2AGcWI0CP4oivvV_NLC8x7bGhLrA9yUgIkSIomos1pzxItpTS8zCoag8OwamJHg4L_dygoOVDQQOj8z0oU8MM7fVw5nqXjr7MXKdzQL1KW_vlQLw2w5d4y0ASTdn_yaMD5kWaXbI8fjmhM-c27R-p_MDa3PNmdFFEfyYZXJKJYeQD3FCU3ah9_eeHRlBfEj2qx10Q9_QCl9mvVyehuypzQlew0Wvj140_taHzAgaWPmwD7RVUhM2AXRKZoiQNMCW"/>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="material-icons text-olivegreen text-4xl drop-shadow-lg">place</span>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-olivesepia text-white px-4 transition-transform active:scale-95">
-                <span className="material-symbols-outlined text-lg">store</span>
-                <span className="text-sm font-semibold">All Businesses</span>
-              </button>
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white text-olivegreen px-4 hover:bg-olivetan transition-colors border-2 border-olivetan">
-                <span className="material-symbols-outlined text-lg text-olivesepia">restaurant</span>
-                <span className="text-sm font-medium">Food & Drink</span>
-              </button>
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white text-olivegreen px-4 hover:bg-olivetan transition-colors border-2 border-olivetan">
-                <span className="material-symbols-outlined text-lg text-olivesepia">shopping_bag</span>
-                <span className="text-sm font-medium">Retail</span>
-              </button>
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white text-olivegreen px-4 hover:bg-olivetan transition-colors border-2 border-olivetan">
-                <span className="material-symbols-outlined text-lg text-olivesepia">spa</span>
-                <span className="text-sm font-medium">Beauty & Spa</span>
-              </button>
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white text-olivegreen px-4 hover:bg-olivetan transition-colors border-2 border-olivetan">
-                <span className="material-symbols-outlined text-lg text-olivesepia">construction</span>
-                <span className="text-sm font-medium">Services</span>
-              </button>
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white text-olivegreen px-4 hover:bg-olivetan transition-colors border-2 border-olivetan">
-                <span className="material-symbols-outlined text-lg text-olivesepia">health_and_safety</span>
-                <span className="text-sm font-medium">Health</span>
-              </button>
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white text-olivegreen px-4 hover:bg-olivetan transition-colors border-2 border-olivetan">
-                <span className="material-symbols-outlined text-lg text-olivesepia">fitness_center</span>
-                <span className="text-sm font-medium">Fitness</span>
-              </button>
+            <div className="absolute bottom-2 left-2">
+              <button className="bg-white/90 dark:bg-black/80 px-3 py-1 text-xs font-bold rounded-full shadow-sm hover:bg-white transition">Expand Map</button>
             </div>
           </div>
-
-          {/* Businesses Grid */}
-          {filteredBusinesses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredBusinesses.map((business) => (
-                <div key={business.id} className="bg-white border-2 border-olivetan rounded-xl overflow-hidden flex flex-col hover:shadow-xl transition-shadow relative group cursor-pointer">
-                  <div className="w-full bg-center bg-no-repeat aspect-video bg-cover" style={{backgroundImage: `url("${business.image}")`}}>
-                    {business.badge && (
-                      <div className="bg-olivesepia/90 text-white text-xs font-bold px-3 py-1 rounded-full absolute top-3 left-3 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-xs">verified</span> {business.badge}
-                      </div>
-                    )}
+        </aside>
+        <div className="flex-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <h2 className="text-2xl font-bold text-olivetan">Recommended Results for you</h2>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Sort by:</span>
+              <select 
+                value={sortBy}
+                onChange={handleSortChange}
+                className="text-sm border-gray-200 dark:border-gray-700 dark:bg-olivedarkgreen rounded-md focus:ring-olivegreen"
+              >
+                <option>Most Relevant</option>
+                <option>Highest Rated</option>
+                <option>Most Reviewed</option>
+                <option>Newest</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {paginatedBusinesses.length > 0 ? (
+              paginatedBusinesses.map(business => (
+                <div key={business.id} className="business-card bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1">
+                  <div className="relative h-48 overflow-hidden">
+                    <img alt={business.name} className="business-image w-full h-full object-cover transition-transform duration-500" src={business.image}/>
+                    <div className={`absolute top-3 right-3 bg-white/90 dark:bg-black/60 backdrop-blur px-2 py-1 rounded text-xs font-bold ${
+                      business.status === 'OPEN NOW' 
+                        ? 'text-green-600 dark:text-green-400' 
+                        : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {business.status}
+                    </div>
                   </div>
-                  <div className="p-6 flex flex-col grow">
+                  <div className="p-5">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-2xl font-black text-olivesepia leading-tight">{business.name}</h3>
-                      <div className="text-olivedarkgreen flex items-center gap-1 text-sm font-medium">
-                        <span className="material-symbols-outlined text-sm">location_on</span> {business.distance}
+                      <h3 className="font-bold text-xl">{business.name}</h3>
+                      <div className="flex items-center text-yellow-500">
+                        {renderStars(business.rating)}
+                        <span className="text-xs text-gray-500 ml-1 font-semibold">({business.rating})</span>
                       </div>
                     </div>
-                    <p className="text-olivegreen text-lg font-bold mb-1">{business.category}</p>
-                    <p className="text-olivedarkgreen text-sm font-normal mb-4">{business.description}</p>
-                    <div className="mt-auto flex flex-col gap-4">
-                      <div className="flex items-center gap-2 text-xs font-medium text-olivesepia">
-                        <span className="material-symbols-outlined text-xs">star</span> {business.rating} ({business.reviews} reviews)
+                    <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">{business.description}</p>
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <div className="flex gap-2">
+                        {business.tags.map((tag, index) => (
+                          <span key={index} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-[10px] font-bold rounded">{tag}</span>
+                        ))}
                       </div>
-                      <button className="w-full bg-olivesepia hover:bg-olivesepia/90 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
-                        View Business 
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14M12 5l7 7-7 7"></path>
-                        </svg>
-                      </button>
+                      <span className="text-olivesepia font-bold text-sm">{business.distance} miles away</span>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16">
-              <span className="material-symbols-outlined text-6xl text-olivetan mb-4">store</span>
-              <h2 className="text-2xl font-bold text-olivegreen mb-2">No businesses found</h2>
-              <p className="text-olivedarkgreen text-center max-w-md mb-6">We couldn't find any businesses matching "{localSearch}". Try searching for different keywords or categories.</p>
-              <button 
-                onClick={clearSearch}
-                className="bg-olivesepia text-white px-6 py-2 rounded-lg font-semibold hover:bg-olivesepia/90 transition-colors"
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 text-lg">No businesses match your filters. Try adjusting your criteria.</p>
+              </div>
+            )}
+          </div>
+          <div className="mt-12 flex justify-center">
+            <nav className="flex gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Clear Search
+                <span className="material-icons text-sm">chevron_left</span>
               </button>
-            </div>
-          )}
-
-          {/* Load More / Bottom Action */}
-          {filteredBusinesses.length > 0 && (
-            <div className="mt-16 flex flex-col items-center gap-4">
-              <button className="bg-olivetan text-olivegreen px-10 py-4 rounded-xl font-bold hover:bg-olivetan/80 transition-all">
-                Load More Businesses
+              {[1, 2, 3].map(page => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  disabled={page > Math.ceil(sortedBusinesses.length / businessesPerPage)}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition ${
+                    currentPage === page
+                      ? 'bg-olivegreen text-white'
+                      : 'border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= Math.ceil(sortedBusinesses.length / businessesPerPage)}
+                className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="material-icons text-sm">chevron_right</span>
               </button>
-              <p className="text-olivedarkgreen text-sm italic">Showing {filteredBusinesses.length} of 128 local businesses</p>
-            </div>
-          )}
+            </nav>
+          </div>
         </div>
       </main>
-
       <Footer />
     </div>
-  )
+  );
 }
+
+export default Businesses;

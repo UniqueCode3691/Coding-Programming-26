@@ -29,7 +29,7 @@ export default function App() {
           <Route path="/for-businesses" element={<ForBusinesses />}></Route>
           <Route path="/deals" element={<NeighborRoute><Deals /></NeighborRoute>} />
           <Route path="/businesses" element={<NeighborRoute><Businesses /></NeighborRoute>} />
-          <Route path="/businesses-dashboard" element={<BusinessRoute><BusinessesDashboard /></BusinessRoute>} />
+          <Route path="/businesses-dashboard" element={<BusinessesDashboard />} />
           <Route path="/businesses-sign-in" element={<BusinessesSignIn />}></Route>
           <Route path="/businesses-sign-up" element={<BusinessesSignUp />}></Route>
           <Route path="*" element={<NotFound />} />

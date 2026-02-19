@@ -2,13 +2,13 @@ import { Navigate } from 'react-router-dom';
 import { UserAuth } from '../context/AuthContext';
 
 const NeighborRoute = ({ children }) => {
-  const { session, profile, loading } = UserAuth();
+  const { session, loading } = UserAuth();
 
   if (loading) return <div>Loading...</div>;
 
   if (!session) return <Navigate to="/sign-in" />;
 
-  if (profile?.account_type === 'business') {
+  if (session?.user?.user_metadata?.account_type === 'business') {
     return <Navigate to="/businesses-dashboard" />;
   }
 

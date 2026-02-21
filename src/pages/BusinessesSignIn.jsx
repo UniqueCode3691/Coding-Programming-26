@@ -31,7 +31,7 @@ export default function BusinessesSignIn() {
 
       if (result.success) {
         if (result.accountType !== 'business') {
-          await supabase.auth.signOut();
+          await signOut();
           setError("This is not a Business account. Please use the regular login page.");
           setLoading(false);
           return;

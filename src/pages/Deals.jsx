@@ -9,7 +9,6 @@ export default function Deals() {
       
       <main className="flex flex-1 justify-center py-8 bg-white">
         <div className="layout-content-container flex flex-col max-w-[1200px] flex-1 px-4 md:px-10">
-          {/* Page Heading */}
           <div className="flex flex-wrap justify-between gap-3 mb-8">
             <div className="flex min-w-72 flex-col gap-3">
               <h1 className="text-olivegreen text-4xl font-black leading-tight tracking-[-0.033em]">Local Deals & Exclusive Offers</h1>
@@ -17,7 +16,6 @@ export default function Deals() {
             </div>
           </div>
 
-          {/* Search & Filters */}
           <div className="bg-olivetan p-6 rounded-xl shadow-sm mb-8 border border-olivetan">
             <div className="mb-6">
               <label className="flex flex-col w-full h-12">
@@ -62,9 +60,7 @@ export default function Deals() {
             </div>
           </div>
 
-          {/* Deals Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Card 1 */}
             <div className="bg-white border-2 border-dashed border-olivetan rounded-xl overflow-hidden flex flex-col hover:shadow-xl transition-shadow relative group">
               <div className="w-full bg-center bg-no-repeat aspect-video bg-cover" style={{backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuC4hPyKOPVmdl1ooMm3Emg4FGC-usKqWGGdqkVV6styJIf6nOerGxTzTotAUp2DPTriUsBB8nAwhjfxixP1D1UKzN2vynQIBQqQtwEuzgaUOqqJIehfrUY9W7qyUbgifDXHVTSOjuMdGDSS3fSVLitjBG4Lb-u7nG5fQ122-2dPe_UCK3a_ORFvuuYy7QkPX5XvH1ZJkcyKABwUOaYMd74aKwBf2lQrjtQss8qfA1_o8Xa8nko5skzAJ4O95pk-VhID0Ho-YX4LZSQP")'}}>
                 <div className="bg-olivesepia/90 text-white text-xs font-bold px-3 py-1 rounded-full absolute top-3 left-3 flex items-center gap-1">
@@ -90,8 +86,6 @@ export default function Deals() {
                 </div>
               </div>
             </div>
-
-            {/* Card 2 */}
             <div className="bg-white border-2 border-dashed border-olivetan rounded-xl overflow-hidden flex flex-col hover:shadow-xl transition-shadow relative">
               <div className="w-full bg-center bg-no-repeat aspect-video bg-cover" style={{backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBga8kBRph3c7-Xl4wGdR1HtuZpfYCdv23AMRDn7-_EKrz9RY-KX1L5oiY4nobYASRUMroRz8ImAB0bQE9E_ICMTUumbUPh3sgY9DD9ixGNgleLzft-h8wisVJGdV9lIEr_8jKComnB3LdNE1w_mWPGofWtw-34WeI8IKv6dClE-idMgyXLi9iGIUSvI-flwgHXHmVi7jlfVddMYDDUAuPR9dfUoxGlTgmteEnAjXTn0VjNfeTme9P97XnBgsLZ9LB0p6cee2FkRyKx")'}}>
                 <div className="bg-olivesepia/90 text-white text-xs font-bold px-3 py-1 rounded-full absolute top-3 left-3">Hot Deal</div>
@@ -116,7 +110,6 @@ export default function Deals() {
               </div>
             </div>
 
-            {/* Card 3 */}
             <div className="bg-white border-2 border-dashed border-olivetan rounded-xl overflow-hidden flex flex-col hover:shadow-xl transition-shadow relative">
               <div className="w-full bg-center bg-no-repeat aspect-video bg-cover" style={{backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCK5DkFLWHoLrblHxwkSg83CH7_mmkz-g4Z3hJ4jIvVtEuAaZ27wYE0O9CVW6ltcPl5jqj48JOdtYDnNfnhL7ypwE09P_kkpOAoELGvGIqowN8CD_mHrESnvmfCmNa40Vq-gicFKWaBGDkfgj3sbrKgIhEYuNI66p0TxOyfhYzVTg1Js0QdzMI0IihktZip6rR1ydwx7HRvx3u9FzdSG5FfB2TZGFyvC43D3wtAgLn1AZrhvnAlm1BFd9-njvXmtwqFd2j_bMLfMMG6")'}}>
               </div>

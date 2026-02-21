@@ -64,6 +64,7 @@ export const AuthContextProvider = ({children}) => {
         const init = async () => {
             try {
                 const { data: { session } } = await supabase.auth.getSession()
+                console.debug('[Auth] init session:', session)
                 if (!mounted) return
                 setSession(session)
             } catch (err) {
@@ -78,6 +79,7 @@ export const AuthContextProvider = ({children}) => {
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            console.debug('[Auth] onAuthStateChange', _event, session)
             setSession(session)
 
             try {
@@ -93,7 +95,6 @@ export const AuthContextProvider = ({children}) => {
                     if (profileError || !profile || !profile.account_type) {
                         const account_type = session.user.user_metadata?.account_type || 'user'
 
-                        // Ensure we have a profiles row for this user
                         await supabase.from('profiles').upsert({
                             id: userId,
                             account_type,
@@ -101,11 +102,9 @@ export const AuthContextProvider = ({children}) => {
                         }, { returning: 'minimal' })
 
                         try {
-                            // Also update the Supabase user's metadata so UI that reads
-                            // `session.user.user_metadata.account_type` sees the correct value.
                             await supabase.auth.updateUser({
                                 data: {
-                                    account_type,
+                                    account_type: account_type,
                                     name: session.user.user_metadata?.name || session.user.email
                                 }
                             })
@@ -127,14 +126,15 @@ export const AuthContextProvider = ({children}) => {
         }
     }, [])
     const signOut = async () => {
+        console.debug('[Auth] signOut called')
         try {
             const { error } = await supabase.auth.signOut();
-            // proactively clear local session state so UI updates immediately
             setSession(null);
             if (error) {
                 console.error("There was an error signing out:", error);
                 return { success: false, error };
             }
+            console.debug('[Auth] signOut successful')
             return { success: true };
         } catch (err) {
             console.error('Unexpected signOut error:', err);

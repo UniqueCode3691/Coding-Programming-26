@@ -13,7 +13,7 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false)
   const [captchaToken, setCaptchaToken] = useState(null)
   const navigate = useNavigate()
-  const { signInUser, signInWithGoogle, sendMagicLink } = UserAuth()
+    const { session, signInUser, signInWithGoogle, sendMagicLink, signOut } = UserAuth()
   const [isMagicLinkMode, setIsMagicLinkMode] = useState(false);
   const [linkSent, setLinkSent] = useState(false);
 
@@ -41,7 +41,7 @@ const SignIn = () => {
       const result = await signInUser(email, password, captchaToken);
       if (result.success) {
         if (result.accountType === 'business') {
-          await supabase.auth.signOut();
+            await signOut();
           setError("This is a Business account. Please use the Business Login page.");
           setLoading(false);
           return;

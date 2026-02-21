@@ -453,23 +453,23 @@ function Businesses() {
               paginatedBusinesses.map(business => {
                 const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name)}&query_place_id=${business.lat},${business.lon}`;
                 return (
-                <div state={{ businessData: business }} key={business.id} className="business-card bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1">
+                <div key={business.id} className="business-card bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1">
                   <div className="relative h-48 overflow-hidden">
                     <img alt={business.name} className="business-image w-full h-full object-cover transition-transform duration-500" src={business.image}/>
                   </div>
                   <div className="p-5">
-                    <Link to={`/business/${business.id}`} className="flex justify-between items-start mb-2">
+                    <Link to={`/business/${business.id}`} state={{ businessData: business }} className="flex justify-between items-start mb-2">
                       <h3 className="font-bold text-xl">{business.name}</h3>
                       <div className="flex items-center text-yellow-500">
                         {renderStars(business.rating)}
                         <span className="text-xs text-gray-500 ml-1 font-semibold">({business.rating})</span>
                       </div>
                     </Link>
-                    <Link to={`/business/${business.id}`} className="flex items-center gap-1 text-olivegreen mb-2">
+                    <Link state={{ businessData: business }} to={`/business/${business.id}`} className="flex items-center gap-1 text-olivegreen mb-2">
                       <span className="material-icons text-lg">{getCategoryIcon(business.categories[0])}</span>
                       <span className="text-xs font-bold uppercase tracking-tighter">{business.categories[0]}</span>
                     </Link>
-                    <Link to={`/business/${business.id}`} className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">{business.description}</Link>
+                    <Link state={{ businessData: business }} to={`/business/${business.id}`} className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">{business.description}</Link>
                     <a 
                       href={googleMapsUrl}
                       target="_blank" 
@@ -479,7 +479,7 @@ function Businesses() {
                       <span className="material-icons text-sm">explore</span>
                       VIEW ON GOOGLE MAPS
                     </a>
-                    <Link to={`/business/${business.id}`} className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <Link state={{ businessData: business }} to={`/business/${business.id}`} className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                       <div className="flex gap-2">
                         {business.tags.map((tag, index) => (
                           <span key={index} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-[10px] font-bold rounded">{tag}</span>

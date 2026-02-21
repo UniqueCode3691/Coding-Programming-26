@@ -76,7 +76,7 @@ const Home = () => {
             </CardSwap>
             </div>
         </div>
-        <div className='p-15 bg-olivetan'>
+        <div className='p-15 z-0 bg-olivetan'>
           <UserLocation onLocationFound={(c) => setCoords(c)} coords={coords} />
         </div>
         <Chatbot />

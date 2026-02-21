@@ -18,7 +18,7 @@ const getOverpassBusinesses = async (lat, lng) => {
     const query = `
       [out:json][timeout:25];
       (
-        node["amenity"](around:${radius},${lat},${lng});
+        node["amenity"]["amenity"!="bench"](around:${radius},${lat},${lng});
         node["shop"](around:${radius},${lat},${lng});
       );
       out body;
@@ -59,9 +59,6 @@ function OverpassMarkers({ userCoords }) {
               <p className="text-gray-600 text-sm capitalize">
                 {(biz.tags.shop || biz.tags.amenity || 'Store').replace('_', ' ')}
               </p>
-              <button className="mt-2 bg-olivegreen text-white px-2 py-1 rounded text-xs">
-                Invite to NearMeer
-              </button>
             </div>
           </Popup>
         </Marker>

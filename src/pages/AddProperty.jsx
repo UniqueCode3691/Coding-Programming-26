@@ -35,7 +35,6 @@ export default function AddProperty() {
           </div>
         </div>
         <form className="space-y-12">
-          {/* Section 1: Basic Information */}
           <section className="bg-white p-8 rounded-xl shadow-sm border border-olivesepia/20">
             <div className="flex items-center gap-3 mb-8">
               <img src={info} alt="Info Icon" className="w-4 h-4" />

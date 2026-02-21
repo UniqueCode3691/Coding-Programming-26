@@ -89,35 +89,38 @@ export default function BusinessTemplate() {
 
     const handleSubmitReview = async (e) => {
         e.preventDefault();
-        if (!user) return alert('Please sign in to post a review.')
-        if (!newReview || newReview.trim().length < 5) return alert('Please write a longer review (at least 5 characters).')
-        if (!business?.id) return alert('Business not found.')
+        if (!user) return alert('Please sign in to post a review.');
+        if (!newReview || newReview.trim().length < 5) return alert('Please write a longer review.');
+        
+        const bId = String(business.id); 
 
         try {
             const { data, error } = await supabase
                 .from('reviews')
                 .insert([
                     {
-                        business_id: business.id,
+                        business_id: bId,
                         user_id: user.id,
                         content: newReview.trim(),
                         rating: userRating,
                         user_name: user.user_metadata?.name || user.email
                     }
                 ])
+                .select();
 
             if (error) {
-                console.error('Insert review error', error)
-                return alert(error.message || 'Failed to post review.')
+                console.error('SUPABASE ERROR:', error.code, error.message, error.details);
+                return alert(`Error: ${error.message}`);
             }
 
+            console.log('Review posted successfully:', data);
             setNewReview("");
             setUserRating(5);
-            await fetchReviews();
             setShowForm(false);
+            fetchReviews();
+            
         } catch (err) {
-            console.error('Unexpected error posting review', err)
-            alert('Failed to post review. Please try again.')
+            console.error('Unexpected error:', err);
         }
     };
 
@@ -132,13 +135,10 @@ export default function BusinessTemplate() {
         }
     };
 
-    // Load reviews when business changes or sort order changes
     useEffect(() => {
         fetchReviews();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [business?.id, sortOrder]);
 
-    // If no business was passed via navigation state, attempt to load by :id
     useEffect(() => {
         const loadBusiness = async () => {
             try {
@@ -170,7 +170,6 @@ export default function BusinessTemplate() {
         }
 
         loadBusiness();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [paramId, location.state]);
 
     if (!business) {

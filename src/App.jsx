@@ -34,7 +34,7 @@ export default function App() {
           <Route path="/businesses-dashboard" element={<BusinessRoute><BusinessesDashboard /></BusinessRoute>} />
           <Route path="/businesses-sign-in" element={<BusinessesSignIn />} />
           <Route path="/businesses-sign-up" element={<BusinessesSignUp />} />
-          <Route path="/add-property" element={<AddProperty />} />
+          <Route path="/add-property" element={<BusinessRoute><AddProperty /></BusinessRoute>} />
           <Route path="/business/:id" element={<BusinessTemplate />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

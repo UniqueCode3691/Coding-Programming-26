@@ -127,9 +127,19 @@ export const AuthContextProvider = ({children}) => {
         }
     }, [])
     const signOut = async () => {
-        const {error} = await supabase.auth.signOut()
-        if (error) {
-            console.error("There was an error signing out")
+        try {
+            const { error } = await supabase.auth.signOut();
+            // proactively clear local session state so UI updates immediately
+            setSession(null);
+            if (error) {
+                console.error("There was an error signing out:", error);
+                return { success: false, error };
+            }
+            return { success: true };
+        } catch (err) {
+            console.error('Unexpected signOut error:', err);
+            setSession(null);
+            return { success: false, error: err };
         }
     }
 

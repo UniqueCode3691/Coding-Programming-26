@@ -32,11 +32,15 @@ function Header() {
   const handleSignOut = async (e) => {
     e.preventDefault()
     try {
-      await signOut()
+      const result = await signOut()
+      if (result && result.success === false) {
+        console.error('Sign out failed:', result.error)
+        return
+      }
       setProfileOpen(false)
       navigate('/')
     } catch (err) {
-      console.log("Error signing out: ")
+      console.log("Error signing out: ", err)
     }
   }
 

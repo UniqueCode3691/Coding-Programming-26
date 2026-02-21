@@ -21,6 +21,23 @@ export const AuthContextProvider = ({children}) => {
             console.error("There was a problem signing up")
             return { success: false, error }
         }
+        // Ensure a profiles row exists immediately (avoid relying on onAuthStateChange/localStorage)
+        try {
+            const userId = data?.user?.id
+            if (userId) {
+                await supabase.from('profiles').upsert({
+                    id: userId,
+                    full_name: name,
+                    account_type: type,
+                }, { returning: 'minimal' })
+            }
+        } catch (err) {
+            console.error('Failed to upsert profile after signUp:', err)
+        }
+
+        // Clear any pre-oauth stored intent to avoid stale values being applied
+        if (typeof window !== 'undefined') window.localStorage.removeItem('pre_oauth_account_type')
+
         return { success: true, data }
     }
 

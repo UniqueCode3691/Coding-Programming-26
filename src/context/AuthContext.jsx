@@ -126,22 +126,24 @@ export const AuthContextProvider = ({children}) => {
         }
     }, [])
     const signOut = async () => {
-        console.debug('[Auth] signOut called')
+        console.debug('[Auth] signOut called');
         try {
-            const { error } = await supabase.auth.signOut();
             setSession(null);
+
+            const { error } = await supabase.auth.signOut();
+
             if (error) {
-                console.error("There was an error signing out:", error);
+                console.error("Supabase signOut error:", error);
                 return { success: false, error };
             }
-            console.debug('[Auth] signOut successful')
+            localStorage.removeItem('supabase.auth.token'); 
+
             return { success: true };
         } catch (err) {
             console.error('Unexpected signOut error:', err);
-            setSession(null);
             return { success: false, error: err };
         }
-    }
+    };
 
     const signInWithGoogle = async () => {
         try {

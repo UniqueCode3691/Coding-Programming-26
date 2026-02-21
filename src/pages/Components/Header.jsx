@@ -76,7 +76,7 @@ function Header() {
                       <div className='px-4 py-2 border-b border-gray-100 md:hidden'>
                           <p className='font-bold text-olivegreen'>{session?.user?.user_metadata?.name}</p>
                       </div>
-                      {session?.user?.user_metadata?.account_type === 'user' ? <Link to="/profile" className='block px-4 py-2 hover:bg-olivetan transition-colors'>My Profile</Link> : <Link to="/businesses-dashboard" className='block px-4 py-2 hover:bg-olivetan transition-colors'>My Business Profile</Link>}
+                      {session?.user?.user_metadata?.account_type === 'user' ? <Link to="/profile" className='block px-4 py-2 hover:bg-olivetan text-black transition-colors'>My Profile</Link> : <Link to="/businesses-dashboard" className='block text-black px-4 py-2 hover:bg-olivetan transition-colors'>My Business Profile</Link>}
                       <button 
                           onClick={handleSignOut}
                           className='w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 font-semibold transition-colors'

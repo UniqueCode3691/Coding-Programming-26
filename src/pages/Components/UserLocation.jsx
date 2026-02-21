@@ -14,26 +14,67 @@ const userLocationIcon = L.divIcon({
 });
 
 const getOverpassBusinesses = async (lat, lng) => {
-    const radius = 4000;
-    const query = `
-      [out:json][timeout:25];
-      (
-        node["amenity"]["amenity"!="bench"](around:${radius},${lat},${lng});
-        node["shop"](around:${radius},${lat},${lng});
-      );
-      out body;
-    `;
-    const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
-    
+  const radius = 4000;
+  const query = `
+    [out:json][timeout:25];
+    (
+      node["amenity"]["amenity"!="bench"](around:${radius},${lat},${lng});
+      node["shop"](around:${radius},${lat},${lng});
+    );
+    out body;
+  `;
+  const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+
+  const maxAttempts = 3;
+  let attempt = 0;
+
+  while (attempt < maxAttempts) {
     try {
       const response = await fetch(url);
+
+      // If server returned non-OK, try to handle 429 specially (rate limit)
+      if (!response.ok) {
+        const text = await response.text();
+        if (response.status === 429) {
+          console.warn(`Overpass 429 (attempt ${attempt + 1}):`, text && text.slice?.(0, 200));
+          attempt += 1;
+          // exponential backoff before retrying
+          if (attempt < maxAttempts) {
+            await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt)));
+            continue;
+          }
+          // Exceeded retries
+          return [];
+        }
+
+        // Non-JSON response or other error page (e.g., HTML) - log and return empty
+        console.error(`Overpass non-OK response (${response.status}):`, text && text.slice?.(0, 400));
+        return [];
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        // Sometimes Overpass returns HTML/XML error pages; capture and log
+        const text = await response.text();
+        console.error('Overpass returned non-JSON payload:', text && text.slice?.(0, 400));
+        return [];
+      }
+
       const data = await response.json();
-      return data.elements;
+      return data?.elements || [];
     } catch (err) {
-      console.error("Overpass Error:", err);
+      console.error('Overpass fetch error (network or parse):', err);
+      attempt += 1;
+      if (attempt < maxAttempts) {
+        await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt)));
+        continue;
+      }
       return [];
     }
-  };
+  }
+
+  return [];
+};
 
 
 function OverpassMarkers({ userCoords }) {

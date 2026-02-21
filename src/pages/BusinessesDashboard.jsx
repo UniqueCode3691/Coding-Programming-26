@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
+import { Link } from 'react-router-dom'
 import { UserAuth } from '../context/AuthContext'
+import { supabase } from '../SupabaseClient'
 import trendingup from "../assets/icons/trendingup.png"
 import checkcircle from "../assets/icons/checkcircle.png"
 import person from "../assets/icons/person.png"
@@ -11,14 +13,60 @@ import right from "../assets/icons/right.png"
 import locationon from "../assets/icons/locationon.png"
 
 export default function BusinessesDashboard() {
-  const {session, signOut} = UserAuth()
+  const {session, loading, signOut} = UserAuth()
+  const [profile, setProfile] = useState(null)
+  const [properties, setProperties] = useState([])
+  const [propertiesLoading, setPropertiesLoading] = useState(true)
+  const [editingId, setEditingId] = useState(null)
+  const [editForm, setEditForm] = useState({})
+  const [propActionLoading, setPropActionLoading] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    const loadProfile = async () => {
+      try {
+        if (!session?.user?.id) return
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+        if (mounted && !error) setProfile(data)
+      } catch (err) {
+        console.error('Failed to load profile for dashboard:', err)
+      }
+    }
+
+    loadProfile()
+    const loadProperties = async () => {
+      setPropertiesLoading(true)
+      try {
+        if (!session?.user?.id) return
+        const { data, error } = await supabase
+          .from('locations')
+          .select('*')
+          .eq('business_id', session.user.id)
+          .order('id', { ascending: false })
+        if (!error) setProperties(data || [])
+      } catch (err) {
+        console.error('Failed to load properties for dashboard:', err)
+      } finally {
+        setPropertiesLoading(false)
+      }
+    }
+
+    loadProperties()
+    return () => { mounted = false }
+  }, [session])
+
+  if (loading) return <div className="p-8">Loading...</div>
   return (
     <>
       <Header />
       <div className="bg-olivetan min-h-screen">
         <main className="mx-auto max-w-6xl px-6 py-12">
           <div className="mb-10">
-            <h1 className="text-3xl font-bold text-olivedarkgreen">Welcome back, {session?.user?.user_metadata?.name?.split(' ')[0]}</h1>
+            <h1 className="text-3xl font-bold text-olivedarkgreen">Welcome back, {(profile?.full_name || session?.user?.user_metadata?.name || session?.user?.email || '').split(' ')[0]}</h1>
             <p className="text-olivedarkgreen/60">Here's what's happening with your portfolio today.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
@@ -55,78 +103,91 @@ export default function BusinessesDashboard() {
               </div>
             </div>
           </div>
-          <section className="mb-10 relative">
+          <section className="mb-10">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-olivedarkgreen">Your Properties</h2>
               <div className="flex gap-2">
-                <button className="p-2 border border-olivesepia rounded-lg hover:bg-olivetan text-olivedarkgreen/40 hover:text-olivedarkgreen transition-colors">
-                  <img src={left} alt="Left Arrow" className="w-6 h-6" />
-                </button>
-                <button className="p-2 border border-olivesepia rounded-lg hover:bg-olivetan text-olivedarkgreen/40 hover:text-olivedarkgreen transition-colors">
-                  <img src={right} alt="Right Arrow" className="w-6 h-6" />
-                </button>
+                <Link to="/add-property" className="px-4 py-2 bg-olivegreen text-white rounded-full hover:opacity-90">Add Location</Link>
               </div>
             </div>
-            <div className="relative overflow-hidden">
-              <div className="flex gap-6 overflow-x-auto hide-scrollbar carousel-container pb-8 pr-32">
-                <div className="carousel-item">
-                  <div className="bg-white rounded-2xl overflow-hidden border border-olivesepia/30 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="relative h-48">
-                      <img alt="Modern Villa" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLE2NmKhJ963_UPQjR_Wbu9zuvRCHLQbWOP_7lI6a69nFXfaYBf13GPKUAaZT-FYlhB7lqHR17aEadzM04qt7FE_8XUIKqlX3Yx1SjckDlZl6ONAqHC7crwQLM_xcrXE6h2prkTck8enHJqrs_XhZDMe8SXXjgYn2JbNXAwdz9nGIjT4-ZAL8-jZIT5QBB8ZN1QGP1mKuB4RIRKpTGjpOcUVbwzdxGsIk1MoIBH9_Rbbph7cWRuf-Yy6enHDAH3f9KN8MwhqbEwMPD"/>
-                      <span className="absolute top-4 left-4 bg-olivegreen text-white text-xs font-bold px-2.5 py-1 rounded-full">OCCUPIED</span>
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {propertiesLoading ? (
+                <div className="col-span-full flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-olivegreen"></div>
+                </div>
+              ) : properties && properties.length > 0 ? properties.map(prop => (
+                <div key={prop.id} className="bg-white rounded-2xl overflow-hidden border border-olivesepia/30 shadow-sm hover:shadow-md transition-shadow">
+                  {editingId === prop.id ? (
                     <div className="p-5">
-                      <h3 className="text-lg font-bold text-olivedarkgreen">Oakwood Heights Modern Villa</h3>
-                      <p className="text-olivedarkgreen/60 text-sm mt-1 flex items-center gap-1">
-                        <img src={locationon} alt="Location Icon" className="w-4 h-4" />
-                        245 Oak Lane, Austin TX
-                      </p>
-                      <div className="mt-6 pt-5 border-t border-olivetan flex justify-between items-center">
-                        <span className="text-xs text-olivedarkgreen/40 font-medium">DATE POSTED: 09/15/2024</span>
-                        <button className="text-olivesepia text-sm font-bold hover:underline">View Details</button>
+                      <div className="space-y-3">
+                        <input value={editForm.name || ''} onChange={(e) => setEditForm(f => ({...f, name: e.target.value}))} className="w-full bg-white border border-olivesepia/30 rounded px-3 py-2" placeholder="Location name" />
+                        <input value={editForm.address || ''} onChange={(e) => setEditForm(f => ({...f, address: e.target.value}))} className="w-full bg-white border border-olivesepia/30 rounded px-3 py-2" placeholder="Address" />
+                        <input value={editForm.image || ''} onChange={(e) => setEditForm(f => ({...f, image: e.target.value}))} className="w-full bg-white border border-olivesepia/30 rounded px-3 py-2" placeholder="Image URL (optional)" />
+                        <select value={editForm.status || ''} onChange={(e) => setEditForm(f => ({...f, status: e.target.value}))} className="w-full bg-white border border-olivesepia/30 rounded px-3 py-2">
+                          <option value="">Status (optional)</option>
+                          <option value="OCCUPIED">OCCUPIED</option>
+                          <option value="VACANT">VACANT</option>
+                          <option value="LISTED">LISTED</option>
+                        </select>
+                      </div>
+                      <div className="mt-4 flex gap-2">
+                        <button onClick={async () => {
+                          try {
+                            setPropActionLoading(true)
+                            const { data, error } = await supabase.from('locations').update(editForm).eq('id', prop.id).select().single()
+                            if (error) throw error
+                            setProperties(prev => prev.map(p => p.id === prop.id ? data : p))
+                            setEditingId(null)
+                          } catch (err) {
+                            console.error('Failed to save property:', err)
+                          } finally {
+                            setPropActionLoading(false)
+                          }
+                        }} disabled={propActionLoading} className="px-3 py-2 bg-olivegreen text-white rounded">{propActionLoading ? 'Saving...' : 'Save'}</button>
+                        <button onClick={() => { setEditingId(null); setEditForm({}) }} className="px-3 py-2 border rounded">Cancel</button>
+                        <button onClick={async () => {
+                          if (!confirm('Delete this location? This action cannot be undone.')) return
+                          try {
+                            setPropActionLoading(true)
+                            const { error } = await supabase.from('locations').delete().eq('id', prop.id)
+                            if (error) throw error
+                            setProperties(prev => prev.filter(p => p.id !== prop.id))
+                          } catch (err) {
+                            console.error('Failed to delete property:', err)
+                          } finally {
+                            setPropActionLoading(false)
+                          }
+                        }} disabled={propActionLoading} className="ml-auto px-3 py-2 bg-red-600 text-white rounded">{propActionLoading ? 'Deleting...' : 'Delete'}</button>
                       </div>
                     </div>
-                  </div>
-                </div>
-                <div className="carousel-item">
-                  <div className="bg-white rounded-2xl overflow-hidden border border-olivesepia/30 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="relative h-48">
-                      <img alt="Penthouse" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZwjIypO9TwfluVT0TFrE25LjY_j3JGj33TUDjUIWB12Vp453ViBdXH4cf0zdsKB4T7_x4q3ZLoW8joS5zaF_Z4qcrIiHH0ojLS3MouqGAr9LnDS6NVMLi24fmd1Sqc7BDrJE5l0HDg9ZXhR0DVuldRJvIwxmWiBJ7HITjv9vPzkAaf6vflm8WRHrCrCwIOkQE_u8a4kx8QCPG1mVZfOMZIJacALVhiEo7B2Bl4L79wnZ5hwxJ747QTcpC_CGNrjYJPK42bdg02DpK"/>
-                      <span className="absolute top-4 left-4 bg-olivesepia text-white text-xs font-bold px-2.5 py-1 rounded-full">VACANT (1)</span>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="text-lg font-bold text-olivedarkgreen">Skyline Penthouse Suites</h3>
-                      <p className="text-olivedarkgreen/60 text-sm mt-1 flex items-center gap-1">
-                        <img src={locationon} alt="Location Icon" className="w-4 h-4" />
-                        808 Market St, San Francisco
-                      </p>
-                      <div className="mt-6 pt-5 border-t border-olivetan flex justify-between items-center">
-                        <span className="text-xs text-olivedarkgreen/40 font-medium">DATE POSTED: 09/15/2024</span>
-                        <button className="text-olivesepia text-sm font-bold hover:underline">View Details</button>
+                  ) : (
+                    <>
+                      <div className="relative h-48">
+                        <img alt={prop.name} className="w-full h-full object-cover" src={prop.image || `https://loremflickr.com/800/480/${encodeURIComponent(prop.name || 'property')}?lock=${prop.id}`} />
+                        <span className={`absolute top-4 left-4 text-white text-xs font-bold px-2.5 py-1 rounded-full ${prop.status === 'VACANT' ? 'bg-olivesepia' : 'bg-olivegreen'}`}>{prop.status || 'LISTED'}</span>
                       </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="carousel-item">
-                  <div className="bg-white rounded-2xl overflow-hidden border border-olivesepia/30 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="relative h-48">
-                      <img alt="Cottage" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyTMf_0i1cq2EQjFodo5DyPFeVfleRjchxc5dP-o1t3JPLTvTQEvMhQf4_VAnOHOq7sd1zy3poR9-x_1Pz_53fYQidJKmIB6ni5L7PSIgTn8rL3e8_wsD-D4FA7mATVIV3kGLDX2BpFF7ROq0DjeRKuatmIHEYyy-LmAVpbiGvrs_2G2TDYrPooCWa9A5durNsLS2LTCljBOVtIHtz2b_MFa7mcBrx1ASjk00gaizvULJJaXtb1N7SP-dVGEmosCQH8xoBOfu_RuND"/>
-                      <span className="absolute top-4 left-4 bg-olivegreen text-white text-xs font-bold px-2.5 py-1 rounded-full">OCCUPIED</span>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="text-lg font-bold text-olivedarkgreen">Riverway Garden Cottages</h3>
-                      <p className="text-olivedarkgreen/60 text-sm mt-1 flex items-center gap-1">
-                        <img src={locationon} alt="Location Icon" className="w-4 h-4" />
-                        45 Riverbend Dr, Portland
-                      </p>
-                      <div className="mt-6 pt-5 border-t border-olivetan flex justify-between items-center">
-                        <span className="text-xs text-olivedarkgreen/40 font-medium">DATE POSTED: 09/15/2024</span>
-                        <button className="text-olivesepia text-sm font-bold hover:underline">View Details</button>
+                      <div className="p-5">
+                        <h3 className="text-lg font-bold text-olivedarkgreen">{prop.name || 'Untitled Location'}</h3>
+                        <p className="text-olivedarkgreen/60 text-sm mt-1 flex items-center gap-1">
+                          <img src={locationon} alt="Location Icon" className="w-4 h-4" />
+                          {prop.address || prop.city || 'Address not provided'}
+                        </p>
+                        <div className="mt-6 pt-5 border-t border-olivetan flex justify-between items-center">
+                          <span className="text-xs text-olivedarkgreen/40 font-medium">DATE POSTED: {new Date(prop.created_at || prop.id).toLocaleDateString()}</span>
+                          <div className="flex items-center gap-2">
+                            <Link to={`/business/${prop.id}`} state={{ businessData: prop }} className="text-olivesepia text-sm font-bold hover:underline">View Details</Link>
+                            <button onClick={() => { setEditingId(prop.id); setEditForm({ name: prop.name, address: prop.address, image: prop.image, status: prop.status }) }} className="ml-2 text-sm px-3 py-1 border rounded">Edit</button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </div>
-              </div>
+              )) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-gray-500">You haven't added any business locations yet. Click "Add Location" to add your first one.</p>
+                </div>
+              )}
             </div>
           </section>
         </main>

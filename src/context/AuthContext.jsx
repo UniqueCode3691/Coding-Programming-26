@@ -5,6 +5,7 @@ const AuthContext = createContext()
 
 export const AuthContextProvider = ({children}) => {
     const [session, setSession] = useState(undefined)
+    const [loading, setLoading] = useState(true)
 
     const signUpNewUser = async (name, email, password, captchaToken, type) => {
         const {data, error} = await supabase.auth.signUp({
@@ -58,9 +59,21 @@ export const AuthContextProvider = ({children}) => {
     };
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session }}) => {
-            setSession(session)
-        })
+        let mounted = true
+
+        const init = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession()
+                if (!mounted) return
+                setSession(session)
+            } catch (err) {
+                console.error('Error getting session on init:', err)
+            } finally {
+                if (mounted) setLoading(false)
+            }
+        }
+
+        init()
 
         const {
             data: { subscription },
@@ -80,6 +93,7 @@ export const AuthContextProvider = ({children}) => {
                     if (profileError || !profile || !profile.account_type) {
                         const account_type = session.user.user_metadata?.account_type || 'user'
 
+                        // Ensure we have a profiles row for this user
                         await supabase.from('profiles').upsert({
                             id: userId,
                             account_type,
@@ -87,6 +101,8 @@ export const AuthContextProvider = ({children}) => {
                         }, { returning: 'minimal' })
 
                         try {
+                            // Also update the Supabase user's metadata so UI that reads
+                            // `session.user.user_metadata.account_type` sees the correct value.
                             await supabase.auth.updateUser({
                                 data: {
                                     account_type,
@@ -100,10 +116,15 @@ export const AuthContextProvider = ({children}) => {
                 }
             } catch (err) {
                 console.error('Error ensuring profile after auth change:', err)
+            } finally {
+                if (mounted) setLoading(false)
             }
         })
 
-        return () => subscription.unsubscribe()
+        return () => {
+            mounted = false
+            subscription.unsubscribe()
+        }
     }, [])
     const signOut = async () => {
         const {error} = await supabase.auth.signOut()
@@ -156,7 +177,7 @@ export const AuthContextProvider = ({children}) => {
     };
 
         return (
-            <AuthContext.Provider value={{ session, signUpNewUser, signInUser, signInWithGoogle, signOut, sendMagicLink }}>
+            <AuthContext.Provider value={{ session, loading, signUpNewUser, signInUser, signInWithGoogle, signOut, sendMagicLink }}>
                 {children}
             </AuthContext.Provider>
     )

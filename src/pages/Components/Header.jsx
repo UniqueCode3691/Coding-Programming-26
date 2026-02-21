@@ -52,7 +52,7 @@ function Header() {
                     placeholder="What's on your mind today?..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="sm:w-100 p-2 pl-5 focus:outline-none focus:ring-0 focus:border-transparent"
+                    className="sm:w-100 p-2 pl-5 focus:outline-none text-black focus:ring-0 focus:border-transparent"
                     />
                     <button type="submit" className="w-5 mr-5 cursor-pointer">
                       <img src={SearchLogo} alt="searchlogo" />

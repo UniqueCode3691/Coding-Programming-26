@@ -3,6 +3,8 @@ import Header from './Components/Header';
 import Footer from './Components/Footer';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom'
+import { supabase } from '../SupabaseClient'
 
 function Businesses() {
   const [query, setQuery] = useState('');
@@ -14,7 +16,9 @@ function Businesses() {
   const [distance, setDistance] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [userCoords, setUserCoords] = useState({ lat: 42.8864, lng: -78.8784 });
+  const [userCoords, setUserCoords] = useState(null);
+  const [locationError, setLocationError] = useState(null);
+  const location = useLocation()
   const [appliedFilters, setAppliedFilters] = useState({
     categories: ['Restaurants'],
     rating: '4',
@@ -47,75 +51,179 @@ function Businesses() {
     park: 'Active Life'
   };
   const fetchOverpassData = async (lat, lng, dist) => {
-  setLoading(true);
-  const radius = dist * 1609;
-  const overpassQuery = `
-    [out:json][timeout:25];
-    (
-      node["amenity"~"restaurant|cafe|bar|pub|gym"](around:${radius},${lat},${lng});
-      node["shop"~"bakery|clothes|supermarket"](around:${radius},${lat},${lng});
-      node["leisure"~"park"](around:${radius},${lat},${lng});
-    );
-    out body;
-  `;
-  
-  try {
-    const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`);
-    const data = await response.json();
-    
-    const transformed = data.elements.map(item => {
-      const rawCat = item.tags.amenity || item.tags.shop || item.tags.leisure || "business";
-      const uiCategory = categoryMap[rawCat] || "Other";
-      
-      const cuisine = item.tags.cuisine ? item.tags.cuisine.split(';')[0] : "";
-      let searchKeyword = "storefront"; 
-      if (cuisine) {
-          searchKeyword = cuisine + ",food";
-      } else if (rawCat === "cafe") {
-          searchKeyword = "coffee,shop";
-      } else if (rawCat === "pub" || rawCat === "bar") {
-          searchKeyword = "bar,pub";
-      } else if (rawCat === "bakery") {
-          searchKeyword = "bakery,pastry";
-      } else if (rawCat === "supermarket") {
-          searchKeyword = "grocery,store";
-      } else if (rawCat === "park") {
-          searchKeyword = "park,nature";
-      } else if (item.tags.shop) {
-          searchKeyword = item.tags.shop + ",store";
+    if (lat == null || lng == null) {
+      console.warn('No coordinates provided to fetchOverpassData; skipping fetch.')
+      return;
+    }
+    setLoading(true);
+    const radius = dist * 1609;
+    const overpassQuery = `
+      [out:json][timeout:25];
+      (
+        node["amenity"~"restaurant|cafe|bar|pub|gym"](around:${radius},${lat},${lng});
+        node["shop"~"bakery|clothes|supermarket"](around:${radius},${lat},${lng});
+        node["leisure"~"park"](around:${radius},${lat},${lng});
+      );
+      out body;
+    `;
+
+    const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
+    const maxAttempts = 3;
+    let attempt = 0;
+    let elements = [];
+
+    while (attempt < maxAttempts) {
+      try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          const text = await response.text();
+          if (response.status === 429) {
+            console.warn(`Overpass 429 (attempt ${attempt + 1}):`, text && text.slice?.(0, 300));
+            attempt += 1;
+            if (attempt < maxAttempts) {
+              await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+              continue;
+            }
+            // after retries, break to fallback
+            console.error('Overpass rate limited; falling back to Supabase locations query.');
+            break;
+          }
+
+          console.error(`Overpass non-OK response (${response.status}):`, text && text.slice?.(0, 400));
+          break;
+        }
+
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          const text = await response.text();
+          console.error('Overpass returned non-JSON payload:', text && text.slice?.(0, 400));
+          break;
+        }
+
+        const data = await response.json();
+        elements = data?.elements || [];
+        break; // successful fetch
+      } catch (err) {
+        console.error('Overpass fetch error (network or parse):', err);
+        attempt += 1;
+        if (attempt < maxAttempts) {
+          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+          continue;
+        }
+        break;
       }
-      
-      const cleanKeyword = searchKeyword.replace(/\s+/g, '');
+    }
 
-      const generatedDesc = item.tags.description || 
-        `A highly-rated ${rawCat.replace('_', ' ')} ${cuisine ? 'specializing in ' + cuisine : ''}. A local favorite in the neighborhood.`;      
-      return {
-        id: item.id,
-        name: item.tags.name || "Local Business",
-        lon: item.lon,
-        lat: item.lat,
-        rating: (Math.random() * (5 - 3.8) + 3.8).toFixed(1),
-        categories: [uiCategory],
-        price: item.tags.price_level === "1" ? "$" : "$$", 
-        distance: calculateDistance(lat, lng, item.lat, item.lon),
-        status: item.tags.opening_hours ? 'CHECK HOURS' : 'OPEN NOW',
-        image: `https://loremflickr.com/400/300/${cleanKeyword.replace(/\s+/g, '')}?lock=${item.id}`, 
-        description: generatedDesc,
-        tags: [item.tags.cuisine || rawCat || "LOCAL"].map(t => t.toUpperCase()),
-      };
-    });
+    // If Overpass didn't return elements, attempt a Supabase bbox fallback
+    if (!elements || elements.length === 0) {
+      try {
+        const meters = radius;
+        const latDelta = meters / 111000; // approx degrees latitude
+        const lonDelta = Math.abs(meters / (111000 * Math.cos((lat * Math.PI) / 180))) || 0.02;
 
-    setApiBusinesses(transformed);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
+        const minLat = lat - latDelta;
+        const maxLat = lat + latDelta;
+        const minLon = lng - lonDelta;
+        const maxLon = lng + lonDelta;
 
-  useEffect(() => {
-    fetchOverpassData(42.8864, -78.8784, appliedFilters.distance);
-  }, []);
+        const { data: rows, error } = await supabase
+          .from('locations')
+          .select('*')
+          .gte('lat', minLat)
+          .lte('lat', maxLat)
+          .gte('lon', minLon)
+          .lte('lon', maxLon)
+          .limit(200);
+
+        if (error) {
+          console.error('Supabase fallback query failed', error);
+          setApiBusinesses([]);
+          return;
+        }
+
+        elements = (rows || []).map(r => ({
+          id: r.id,
+          lon: r.lon || r.longitude || null,
+          lat: r.lat || r.latitude || null,
+          tags: {
+            name: r.name || r.business_name || null,
+            cuisine: r.cuisine || null,
+            shop: r.shop || null,
+            amenity: r.amenity || null,
+            leisure: r.leisure || null,
+            price_level: r.price_level || null,
+            opening_hours: r.opening_hours || null,
+            description: r.description || r.address || null,
+          }
+        }));
+      } catch (err) {
+        console.error('Fallback to Supabase failed:', err);
+        setApiBusinesses([]);
+        setLoading(false);
+        return;
+      }
+    }
+
+    // Transform elements into apiBusinesses shape
+    try {
+      const transformed = elements.map(item => {
+        const tags = item.tags || {};
+        const rawCat = tags.amenity || tags.shop || tags.leisure || "business";
+        const uiCategory = categoryMap[rawCat] || "Other";
+
+        const cuisine = tags.cuisine ? String(tags.cuisine).split(';')[0] : "";
+        let searchKeyword = "storefront";
+        if (cuisine) {
+          searchKeyword = cuisine + ",food";
+        } else if (rawCat === "cafe") {
+          searchKeyword = "coffee,shop";
+        } else if (rawCat === "pub" || rawCat === "bar") {
+          searchKeyword = "bar,pub";
+        } else if (rawCat === "bakery") {
+          searchKeyword = "bakery,pastry";
+        } else if (rawCat === "supermarket") {
+          searchKeyword = "grocery,store";
+        } else if (rawCat === "park") {
+          searchKeyword = "park,nature";
+        } else if (tags.shop) {
+          searchKeyword = tags.shop + ",store";
+        }
+
+        const cleanKeyword = searchKeyword.replace(/\s+/g, '');
+
+        const generatedDesc = tags.description || `A highly-rated ${rawCat.replace('_', ' ')} ${cuisine ? 'specializing in ' + cuisine : ''}. A local favorite in the neighborhood.`;
+
+        const itemLat = item.lat || item.latitude || null;
+        const itemLon = item.lon || item.longitude || null;
+
+        return {
+          id: item.id,
+          name: tags.name || "Local Business",
+          lon: itemLon,
+          lat: itemLat,
+          rating: (Math.random() * (5 - 3.8) + 3.8).toFixed(1),
+          categories: [uiCategory],
+          price: tags.price_level === "1" ? "$" : "$$",
+          distance: itemLat && itemLon ? calculateDistance(lat, lng, itemLat, itemLon) : 0,
+          status: tags.opening_hours ? 'CHECK HOURS' : 'OPEN NOW',
+          image: `https://loremflickr.com/400/300/${cleanKeyword.replace(/\s+/g, '')}?lock=${item.id}`,
+          description: generatedDesc,
+          tags: [tags.cuisine || rawCat || "LOCAL"].map(t => String(t).toUpperCase()),
+        };
+      });
+
+      setApiBusinesses(transformed);
+    } catch (err) {
+      console.error('Error transforming Overpass/Supabase elements:', err);
+      setApiBusinesses([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Remove default fetch with hardcoded Buffalo coords. We'll fetch after
+  // obtaining geolocation or when the user applies filters.
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -143,16 +251,65 @@ function Businesses() {
   };
 
   useEffect(() => {
+    // If there's an explicit `search` query param in the URL, run a DB search
+    const q = new URLSearchParams(location.search).get('search')
+    if (q && q.trim()) {
+      const runSearch = async () => {
+        setLoading(true)
+        try {
+          const clean = q.trim()
+          // search name or address
+          const { data, error } = await supabase
+            .from('locations')
+            .select('*')
+            .or(`name.ilike.%${clean}%,address.ilike.%${clean}%`)
+            .limit(200)
+
+          if (error) {
+            console.error('Search query failed', error)
+            setApiBusinesses([])
+            return
+          }
+
+          const transformed = (data || []).map(item => ({
+            id: item.id,
+            name: item.name || item.business_name || 'Local Business',
+            lon: item.lon || item.longitude || null,
+            lat: item.lat || item.latitude || null,
+            rating: item.rating || (Math.random() * (5 - 3.8) + 3.8).toFixed(1),
+            categories: item.category ? [item.category] : ['Local Business'],
+            price: item.price_level ? '$$$' : '$$',
+            distance: item.distance || 0,
+            status: item.status || 'LISTED',
+            image: item.image || `https://loremflickr.com/400/300/${encodeURIComponent(item.name || 'store')}?lock=${item.id}`,
+            description: item.description || item.address || '',
+            tags: item.tags ? item.tags.split(',').map(t => t.toUpperCase()) : [],
+          }))
+
+          setApiBusinesses(transformed)
+        } catch (err) {
+          console.error('Search error', err)
+          setApiBusinesses([])
+        } finally {
+          setLoading(false)
+        }
+      }
+
+      runSearch()
+      return
+    }
+
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
+          setLocationError(null)
           setUserCoords({ lat: latitude, lng: longitude });
           fetchOverpassData(latitude, longitude, appliedFilters.distance);
         },
         (error) => {
-          console.error("Location access denied, using default coordinates.");
-          fetchOverpassData(userCoords.lat, userCoords.lng, appliedFilters.distance);
+          console.error("Location access denied or unavailable.", error);
+          setLocationError('Location access denied. Please allow location or adjust filters.')
         }
       );
     }
@@ -187,8 +344,27 @@ function Businesses() {
       price: selectedPrice,
       distance: distance,
     });
-    
-    fetchOverpassData(userCoords.lat, userCoords.lng, distance);
+    // If we have user coordinates, fetch immediately. Otherwise try to request
+    // geolocation and then fetch; if still not available, set an error so the
+    // UI can prompt the user.
+    if (userCoords && userCoords.lat != null && userCoords.lng != null) {
+      fetchOverpassData(userCoords.lat, userCoords.lng, distance);
+    } else if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocationError(null)
+          setUserCoords({ lat: latitude, lng: longitude });
+          fetchOverpassData(latitude, longitude, distance);
+        },
+        (err) => {
+          console.error('Geolocation request failed during Apply Filters:', err);
+          setLocationError('Location unavailable. Please allow location access or enter a city.');
+        }
+      );
+    } else {
+      setLocationError('Geolocation is not supported by your browser.');
+    }
     setCurrentPage(1);
   };
 

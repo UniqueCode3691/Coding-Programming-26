@@ -1,41 +1,37 @@
 import React, { useState, useEffect } from 'react'
-import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { useLocation, useNavigate, Link, useParams } from 'react-router-dom'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
 import right from "../assets/icons/right.png"
 import reviewsIcon from "../assets/icons/reviews.png"
 import payments from "../assets/icons/paryments.png"
 import { supabase } from '../SupabaseClient.jsx'
+import { UserAuth } from '../context/AuthContext'
 
 export default function BusinessTemplate() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { id: paramId } = useParams();
+
+    const [business, setBusiness] = useState(location.state?.businessData || null);
     const [reviews, setReviews] = useState([]);
-    const business = location.state?.businessData;
     const [newReview, setNewReview] = useState("");
     const [userRating, setUserRating] = useState(5);
     const [showForm, setShowForm] = useState(false);
-    const [user, setUser] = useState(null);
+    const { session } = UserAuth()
+    const user = session?.user || null
     const totalReviews = reviews.length;
-    const [sortBy, setSortBy] = useState("created_at"); // Default to newest
     const [sortOrder, setSortOrder] = useState({ column: 'created_at', ascending: false });
-    const averageRating = totalReviews > 0 
-    ? (reviews.reduce((acc, item) => acc + item.rating, 0) / totalReviews).toFixed(1) 
-    : 0;
-
-    useEffect(() => {
-        supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-    }, []);
+    const averageRating = totalReviews > 0
+        ? (reviews.reduce((acc, item) => acc + (item.rating || 0), 0) / totalReviews).toFixed(1)
+        : 0;
 
     const fetchReviews = async () => {
         if (!business?.id) return;
-        
+
         const { data, error } = await supabase
             .from('reviews')
-            .select(`
-                *,
-                likes:review_likes(count)
-            `)
+            .select('*, review_likes(*)')
             .eq('business_id', business.id)
             .order(sortOrder.column, { ascending: sortOrder.ascending });
 
@@ -44,7 +40,7 @@ export default function BusinessTemplate() {
         } else if (data) {
             const formattedReviews = data.map(rev => ({
                 ...rev,
-                likes_count: rev.likes[0]?.count || 0
+                likes_count: Array.isArray(rev.review_likes) ? rev.review_likes.length : 0
             }));
             setReviews(formattedReviews);
         }
@@ -68,39 +64,60 @@ export default function BusinessTemplate() {
     const handleLikeReview = async (reviewId) => {
         if (!user) return alert("Please sign in to like reviews");
 
-        const { error: insertError } = await supabase
-            .from('review_likes')
-            .insert({ review_id: reviewId, user_id: user.id });
-
-        if (insertError && insertError.code === '23505') {
-            await supabase
+        try {
+            // Check if user already liked this review
+            const { data: existing, error: checkErr } = await supabase
                 .from('review_likes')
-                .delete()
-                .match({ review_id: reviewId, user_id: user.id });
+                .select('id')
+                .match({ review_id: reviewId, user_id: user.id })
+                .maybeSingle();
+
+            if (checkErr) throw checkErr;
+
+            if (existing && existing.id) {
+                // already liked, remove
+                await supabase.from('review_likes').delete().eq('id', existing.id);
+            } else {
+                await supabase.from('review_likes').insert({ review_id: reviewId, user_id: user.id });
+            }
+        } catch (err) {
+            console.error('Error toggling like:', err)
+        } finally {
+            fetchReviews();
         }
-        fetchReviews();
     };
 
     const handleSubmitReview = async (e) => {
         e.preventDefault();
-        const { error } = await supabase
-            .from('reviews')
-            .insert([
-                { 
-                    business_id: business.id, 
-                    user_id: user.id, 
-                    content: newReview, 
-                    rating: userRating,
-                    user_name: user.user_metadata?.name
-                }
-            ]);
+        if (!user) return alert('Please sign in to post a review.')
+        if (!newReview || newReview.trim().length < 5) return alert('Please write a longer review (at least 5 characters).')
+        if (!business?.id) return alert('Business not found.')
 
-        if (!error) {
+        try {
+            const { data, error } = await supabase
+                .from('reviews')
+                .insert([
+                    {
+                        business_id: business.id,
+                        user_id: user.id,
+                        content: newReview.trim(),
+                        rating: userRating,
+                        user_name: user.user_metadata?.name || user.email
+                    }
+                ])
+
+            if (error) {
+                console.error('Insert review error', error)
+                return alert(error.message || 'Failed to post review.')
+            }
+
             setNewReview("");
-            fetchReviews();
+            setUserRating(5);
+            await fetchReviews();
             setShowForm(false);
-        } else {
-            alert("You have already reviewed this business!");
+        } catch (err) {
+            console.error('Unexpected error posting review', err)
+            alert('Failed to post review. Please try again.')
         }
     };
 
@@ -115,9 +132,46 @@ export default function BusinessTemplate() {
         }
     };
 
+    // Load reviews when business changes or sort order changes
     useEffect(() => {
         fetchReviews();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [business?.id, sortOrder]);
+
+    // If no business was passed via navigation state, attempt to load by :id
+    useEffect(() => {
+        const loadBusiness = async () => {
+            try {
+                if (business) return;
+                const id = paramId || location.state?.businessData?.id;
+                if (!id) return;
+
+                const { data, error } = await supabase.from('locations').select('*').eq('id', id).single();
+                if (error) {
+                    console.error('Failed to load business by id:', error)
+                    return;
+                }
+
+                const normalized = {
+                    id: data.id,
+                    name: data.name || data.business_name || 'Local Business',
+                    image: data.image || null,
+                    description: data.description || data.address || '',
+                    categories: data.category ? [data.category] : (data.categories || ['Local Business']),
+                    tags: data.tags ? (Array.isArray(data.tags) ? data.tags : String(data.tags).split(',').map(t => t.trim())) : [],
+                    price: data.price || data.price_level || null,
+                    distance: data.distance || null,
+                    created_at: data.created_at || null,
+                }
+                setBusiness(normalized)
+            } catch (err) {
+                console.error('Error loading business for template:', err)
+            }
+        }
+
+        loadBusiness();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [paramId, location.state]);
 
     if (!business) {
         return (
@@ -137,7 +191,7 @@ export default function BusinessTemplate() {
                 <nav className="flex items-center gap-2 text-sm text-olivedarkgreen/60 mb-6">
                     <button onClick={() => navigate('/')} className="hover:text-olivesepia">Home</button>
                     <img src={right} alt="right arrow" className="w-4 h-4" />
-                    <span className="hover:text-olivesepia">{business.categories[0]}</span>
+                    <span className="hover:text-olivesepia">{(business.categories && business.categories[0]) || 'Business'}</span>
                     <img src={right} alt="right arrow" className="w-4 h-4" />
                     <span className="text-olivedarkgreen font-medium">{business.name}</span>
                 </nav>
@@ -157,10 +211,10 @@ export default function BusinessTemplate() {
                                 </div>
                                 <div className="flex items-center gap-2 mt-2">
                                     <span className="bg-olivegreen/10 text-olivegreen text-xs font-bold px-2 py-1 rounded uppercase">
-                                        {business.tags[0] || 'Local Business'}
+                                        {business.tags && business.tags[0] ? business.tags[0] : 'Local Business'}
                                     </span>
                                     <span className="text-olivedarkgreen/40 text-sm">•</span>
-                                    <span className="text-olivedarkgreen/60 text-sm italic">{business.distance} miles away</span>
+                                    <span className="text-olivedarkgreen/60 text-sm italic">{business.distance ?? ''} miles away</span>
                                 </div>
                             </div>
                         </div>
@@ -229,7 +283,7 @@ export default function BusinessTemplate() {
                                     </form>
                                 ) : (
                                     <div className="p-6 bg-gray-100 rounded-xl text-center border border-dashed border-gray-300">
-                                        <p className="text-gray-600">Please <Link to="/login" className="text-olivegreen font-bold underline">sign in</Link> to leave a review.</p>
+                                        <p className="text-gray-600">Please <Link to="/sign-in" className="text-olivegreen font-bold underline">sign in</Link> to leave a review.</p>
                                     </div>
                                 )
                             )}
@@ -245,7 +299,7 @@ export default function BusinessTemplate() {
                                         </p>
                                         <div className="flex text-yellow-500 text-xs">
                                             {Array.from({ length: 5 }).map((_, i) => (
-                                                <span className={i < rev.rating ? 'text-yellow-500' : 'text-gray-300'} key={i}>{i < rev.rating ? '★' : '☆'}</span>
+                                                <span className={i < (rev.rating || 0) ? 'text-yellow-500' : 'text-gray-300'} key={i}>{i < (rev.rating || 0) ? '★' : '☆'}</span>
                                             ))}
                                         </div>
                                     </div>

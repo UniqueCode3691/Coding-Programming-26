@@ -14,7 +14,6 @@ export default function AddProperty() {
   const navigate = useNavigate()
   const { session } = UserAuth()
 
-  // Manage an array of location entries so the user can add multiple properties dynamically.
   const [locations, setLocations] = useState([
     { name: '', category: '', phone: '', address: '' }
   ])
@@ -38,7 +37,6 @@ export default function AddProperty() {
     })
   }
 
-  // Submit locations to Supabase (table name: `locations`) — adjust table/fields to match your schema.
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -46,7 +44,6 @@ export default function AddProperty() {
     setLoading(true)
 
     try {
-      // minimal validation
       const invalid = locations.some(loc => !loc.name || !loc.address)
       if (invalid) {
         setError('Please provide at least a name and address for every location.')
@@ -54,10 +51,8 @@ export default function AddProperty() {
         return
       }
 
-      // If you have a `business_id` in session, attach it to each location row.
       const businessId = session?.user?.id || null
 
-      // Prepare rows for insertion. Adjust field names to match your DB.
       const rows = locations.map(loc => ({
         name: loc.name,
         category: loc.category,
@@ -70,7 +65,6 @@ export default function AddProperty() {
       if (insertErr) throw insertErr
 
       setSuccess('Locations added successfully.')
-      // Optionally redirect to dashboard after a short delay
       setTimeout(() => navigate('/businesses-dashboard'), 800)
     } catch (err) {
       console.error('Insert locations error', err)

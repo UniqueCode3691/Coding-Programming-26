@@ -34,21 +34,10 @@ export default function BusinessesSignUp() {
           }
         } catch (error) {
           setError(error.message || "An unexpected error occurred.");
-        } finally {
-          setLoading(false);
         }
-      }
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true)
-    setError("")
-    const result = await signInWithGoogle()
-    
-    if (!result.success) {
-      setError(result.error)
-      setLoading(false)
-    }
-  }
+        setLoading(false);
+      };
+  // Google sign-in is intentionally not available for business accounts.
   return (
     <>
       <Header />

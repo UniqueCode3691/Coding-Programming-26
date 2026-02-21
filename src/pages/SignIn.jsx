@@ -64,9 +64,16 @@ const SignIn = () => {
     if (!result.success) {
       setError(result.error);
       setLoading(false);
-    } else {
+      return;
+    }
+
+    // If Supabase returned an OAuth URL, the browser will be redirected and
+    // this code won't continue. If a session was returned immediately
+    // (e.g. popup flow), navigate to the app home.
+    if (result.session) {
       navigate('/');
     }
+    setLoading(false);
   };
 
   return (

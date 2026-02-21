@@ -85,6 +85,17 @@ export const AuthContextProvider = ({children}) => {
                             account_type,
                             full_name: session.user.user_metadata?.name || session.user.email
                         }, { returning: 'minimal' })
+
+                        try {
+                            await supabase.auth.updateUser({
+                                data: {
+                                    account_type,
+                                    name: session.user.user_metadata?.name || session.user.email
+                                }
+                            })
+                        } catch (metaErr) {
+                            console.error('Failed to update user metadata with account_type:', metaErr)
+                        }
                     }
                 }
             } catch (err) {
@@ -111,6 +122,16 @@ export const AuthContextProvider = ({children}) => {
             })
 
             if (error) throw error
+
+            if (data?.url) {
+                window.location.href = data.url
+                return { success: true }
+            }
+
+            if (data?.session) {
+                return { success: true, session: data.session }
+            }
+
             return { success: true, data }
         } catch (error) {
             console.error("Google login error", error)

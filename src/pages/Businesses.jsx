@@ -54,7 +54,6 @@ function Businesses() {
   const fetchOverpassData = async (lat, lng, dist) => {
   if (fetchLock.current) return;
   fetchLock.current = true;
-  
   setLoading(true);
   
   if (lat == null || lng == null) {
@@ -65,7 +64,6 @@ function Businesses() {
   }
 
   const radius = dist * 1609;
-  
   const overpassQuery = `
     [out:json][timeout:25];
     (
@@ -77,7 +75,6 @@ function Businesses() {
   `;
 
   const url = `https://lz4.overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
-  
   const maxAttempts = 3;
   let attempt = 0;
   let elements = [];
@@ -85,56 +82,38 @@ function Businesses() {
   while (attempt < maxAttempts) {
     try {
       const response = await fetch(url);
-
       if (!response.ok) {
-        const text = await response.text();
         if (response.status === 429) {
-          console.warn(`Overpass 429 (attempt ${attempt + 1}):`, text && text.slice(0, 300));
           attempt += 1;
-          if (attempt < maxAttempts) {
-            await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
-            continue;
-          }
-          break;
+          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+          continue;
         }
-        console.error(`Overpass non-OK response (${response.status}):`, text && text.slice(0, 400));
         break;
       }
-
       const data = await response.json();
       elements = data?.elements || [];
       break;
     } catch (err) {
-      console.error('Overpass fetch error:', err);
       attempt += 1;
-      if (attempt < maxAttempts) {
-        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
-        continue;
-      }
+      if (attempt < maxAttempts) continue;
       break;
     }
   }
 
   if (!elements || elements.length === 0) {
     try {
-      const latDelta = radius / 111000;
-      const lonDelta = Math.abs(radius / (111000 * Math.cos((lat * Math.PI) / 180))) || 0.02;
-
       const { data: rows, error } = await supabase
         .from('locations')
         .select('*')
-        .gte('lat', lat - latDelta)
-        .lte('lat', lat + latDelta)
-        .gte('lon', lng - lonDelta)
-        .lte('lon', lng + lonDelta)
+        .order('name', { ascending: true })
         .limit(200);
 
       if (error) throw error;
 
       elements = (rows || []).map(r => ({
         id: r.id,
-        lat: r.lat,
-        lon: r.lon,
+        lat: r.latitude || r.lat, 
+        lon: r.longitude || r.lon,
         tags: {
           name: r.name,
           amenity: r.category,
@@ -155,7 +134,6 @@ function Businesses() {
       const tags = item.tags || {};
       const rawCat = tags.amenity || tags.shop || tags.leisure || "business";
       const uiCategory = categoryMap[rawCat] || "Other";
-      
       const searchKeyword = (tags.name || rawCat).replace(/\s+/g, '').toLowerCase();
 
       return {
@@ -303,9 +281,6 @@ function Businesses() {
       price: selectedPrice,
       distance: distance,
     });
-    // If we have user coordinates, fetch immediately. Otherwise try to request
-    // geolocation and then fetch; if still not available, set an error so the
-    // UI can prompt the user.
     if (userCoords && userCoords.lat != null && userCoords.lng != null) {
       fetchOverpassData(userCoords.lat, userCoords.lng, distance);
     } else if ("geolocation" in navigator) {

@@ -4,6 +4,10 @@ import Footer from './Components/Footer'
 import NamanPic from '../assets/NamanPic.webp'
 import SalilPic from '../assets/SalilPic.webp'
 import SamPic from '../assets/SamPic.webp'
+import { Link } from 'react-router-dom'
+import checkcircle from '../assets/icons/checkcircle.png'
+import person from '../assets/icons/person.png'
+import map from '../assets/icons/map.png'
 
 export default function AboutUs() {
   return (
@@ -34,9 +38,9 @@ export default function AboutUs() {
                 vibrant communities they serve.
               </p>
 
-              <a className="mt-7 rounded-full bg-olivegreen px-6 py-3 text-sm font-semibold text-olivetan shadow-sm hover:brightness-95" href="#">
+              <Link to="/businesses" className="mt-7 rounded-full bg-olivegreen px-6 py-3 text-sm font-semibold text-olivetan shadow-sm hover:brightness-95" href="#">
                 Explore Near You
-              </a>
+              </Link>
             </div>
           </div>
         </section>
@@ -77,7 +81,7 @@ export default function AboutUs() {
           <div className="grid gap-6 md:grid-cols-3">
             <div className="rounded-2xl border border-olivesepia/30 bg-olivetan p-7 text-center shadow-sm hover:shadow-md transition-shadow">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center">
-                <span className="material-symbols-outlined text-olivesepia">storefront</span>
+                <img src={map} className="w-6 h-6 text-olivesepia" alt="Map Icon" />
               </div>
               <p className="text-xs font-medium text-olivesepia">Local Shops Joined</p>
               <p className="mt-2 text-2xl font-extrabold text-olivegreen">1,200+</p>
@@ -85,7 +89,7 @@ export default function AboutUs() {
 
             <div className="rounded-2xl border border-olivesepia/30 bg-olivetan p-7 text-center shadow-sm hover:shadow-md transition-shadow">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center">
-                <span className="material-symbols-outlined text-olivesepia">verified</span>
+                <img src={checkcircle} className="w-6 h-6 text-olivesepia" alt="Check Icon" />
               </div>
               <p className="text-xs font-medium text-olivesepia">Trusted Reviews</p>
               <p className="mt-2 text-2xl font-extrabold text-olivegreen">25k+</p>
@@ -93,7 +97,7 @@ export default function AboutUs() {
 
             <div className="rounded-2xl border border-olivesepia/30 bg-olivetan p-7 text-center shadow-sm hover:shadow-md transition-shadow">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center">
-                <span className="material-symbols-outlined text-olivesepia">group</span>
+                <img src={person} className="w-6 h-6 text-olivesepia" alt="Person Icon" />
               </div>
               <p className="text-xs font-medium text-olivesepia">Active Neighbors</p>
               <p className="mt-2 text-2xl font-extrabold text-olivegreen">100k+</p>
@@ -166,7 +170,7 @@ export default function AboutUs() {
             <p className="mx-auto mt-5 max-w-xl text-sm text-white/75">Join thousands of neighbors who are already discovering the best local secrets.</p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a className="rounded-full bg-olivesepia px-7 py-3 text-sm font-semibold text-white hover:bg-olivesepia/90 transition-colors" href="#">Get Started</a>
+              <Link to="/sign-up" className="rounded-full bg-olivesepia px-7 py-3 text-sm font-semibold text-white hover:bg-olivesepia/90 transition-colors">Get Started</Link>
               <a className="rounded-full border-2 border-white bg-transparent px-7 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-colors" href="#">Contact Us</a>
             </div>
           </div>

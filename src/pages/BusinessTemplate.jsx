@@ -65,18 +65,19 @@ export default function BusinessTemplate() {
         if (!user) return alert("Please sign in to like reviews");
 
         try {
-            // Check if user already liked this review
             const { data: existing, error: checkErr } = await supabase
                 .from('review_likes')
-                .select('id')
+                .select('review_id')
                 .match({ review_id: reviewId, user_id: user.id })
                 .maybeSingle();
 
             if (checkErr) throw checkErr;
 
             if (existing && existing.id) {
-                // already liked, remove
-                await supabase.from('review_likes').delete().eq('id', existing.id);
+                await supabase
+                .from('review_likes')
+                .delete()
+                .match({ review_id: reviewId, user_id: user.id });
             } else {
                 await supabase.from('review_likes').insert({ review_id: reviewId, user_id: user.id });
             }

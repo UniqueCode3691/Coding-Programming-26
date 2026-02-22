@@ -52,10 +52,12 @@ export default function AddProperty() {
       }
 
       const businessId = session?.user?.id || null
-
+      const searchKeyword = `${loc.category || 'business'},${loc.name}`.replace(/\s+/g, '').toLowerCase();
+      const generatedImage = `https://loremflickr.com/400/300/${searchKeyword}?lock=${Date.now() + index}`;
       const rows = locations.map(loc => ({
         name: loc.name,
         category: loc.category,
+        image: generatedImage,
         phone: loc.phone,
         address: loc.address,
         business_id: businessId,
@@ -146,9 +148,6 @@ export default function AddProperty() {
 
           {error && <p className="text-red-700">{error}</p>}
           {success && <p className="text-green-700">{success}</p>}
-          <p className="text-center text-sm text-olivedarkgreen/60">
-            By submitting this location, you agree to our <a className="text-olivesepia hover:underline font-medium" href="#">Location Quality Standards</a>.
-          </p>
         </form>
       </main>
       <Footer />

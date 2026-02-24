@@ -4,6 +4,8 @@ import L from 'leaflet';
 import { MapPin, Navigation } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
+delete L.Icon.Default.prototype._getIconUrl;
+
 const userLocationIcon = L.divIcon({
   html: `<div class="relative flex items-center justify-center">
            <div class="absolute h-8 w-8 bg-blue-500 rounded-full animate-ping opacity-30"></div>
@@ -11,6 +13,17 @@ const userLocationIcon = L.divIcon({
          </div>`,
   className: '',
   iconSize: [32, 32],
+});
+
+const businessIcon = L.divIcon({
+  html: `<div class="flex items-center justify-center w-8 h-8 bg-olivesepia rounded-lg shadow-lg border-2 border-white rotate-45 hover:scale-110 transition-transform">
+            <div class="-rotate-45">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </div>
+         </div>`,
+  className: '',
+  iconSize: [32, 32],
+  iconAnchor: [16, 16]
 });
 
 const getOverpassBusinesses = async (lat, lng) => {
@@ -93,7 +106,7 @@ function OverpassMarkers({ userCoords }) {
   return (
     <>
       {businesses.map((biz, idx) => (
-        <Marker key={idx} position={[biz.lat, biz.lon]}>
+        <Marker key={idx} position={[biz.lat, biz.lon]} icon={businessIcon}>
           <Popup>
             <div className="font-sans">
               <h3 className="font-bold">{biz.tags.name || "Local Business"}</h3>

@@ -130,29 +130,28 @@ function Businesses() {
   }
 
   try {
-    const transformed = elements.map((item, index) => {
-      const tags = item.tags || {};
-      const rawCat = tags.amenity || tags.shop || tags.leisure || "business";
-      const uiCategory = categoryMap[rawCat] || "Other";
-      const searchKeyword = (tags.name || rawCat).replace(/\s+/g, '').toLowerCase();
+      const transformed = elements.map((item, index) => {
+    const tags = item.tags || {};
+    const rawCat = tags.amenity || tags.shop || tags.leisure || "business";
+    const uiCategory = categoryMap[rawCat] || "business";
+    
+    const imageKeyword = uiCategory.toLowerCase().replace(/\s+/g, ',');
 
-      return {
-        id: item.id || `osm-${index}`,
-        name: tags.name || "Local Business",
-        lon: item.lon || (item.center ? item.center.lon : null),
-        lat: item.lat || (item.center ? item.center.lat : null),
-        rating: (Math.random() * (5 - 3.8) + 3.8).toFixed(1),
-        categories: [uiCategory],
-        price: tags.price_level === "1" ? "$" : "$$",
-        distance: calculateDistance(lat, lng, 
-          item.lat || item.center?.lat, 
-          item.lon || item.center?.lon
-        ),
-        image: `https://loremflickr.com/400/300/${searchKeyword}?lock=${item.id || index}`,
-        description: tags.description || `A great ${uiCategory} located in the area.`,
-        tags: [tags.cuisine || rawCat || "LOCAL"].map(t => String(t).toUpperCase()),
-      };
-    });
+    return {
+      id: item.id || `osm-${index}`,
+      name: tags.name || "Local Business",
+      rating: (Math.random() * (5 - 3.8) + 3.8).toFixed(1),
+      categories: [uiCategory],
+      price: tags.price_level === "1" ? "$" : "$$",
+      distance: calculateDistance(lat, lng, 
+        item.lat || item.center?.lat, 
+        item.lon || item.center?.lon
+      ),
+      image: `https://source.unsplash.com/featured/400x300?${imageKeyword}&sig=${item.id || index}`,
+      description: tags.description || `A great ${uiCategory} located in the area.`,
+      tags: [tags.cuisine || rawCat || "LOCAL"].map(t => String(t).toUpperCase()),
+    };
+  });
 
     setApiBusinesses(transformed);
   } catch (err) {

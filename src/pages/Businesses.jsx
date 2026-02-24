@@ -130,28 +130,32 @@ function Businesses() {
   }
 
   try {
-      const transformed = elements.map((item, index) => {
-    const tags = item.tags || {};
-    const rawCat = tags.amenity || tags.shop || tags.leisure || "business";
-    const uiCategory = categoryMap[rawCat] || "business";
-    
-    const imageKeyword = uiCategory.toLowerCase().replace(/\s+/g, ',');
+    const transformed = elements.map((item, index) => {
+      const tags = item.tags || {};
+      const rawCat = tags.amenity || tags.shop || tags.leisure || "business";
+      const uiCategory = categoryMap[rawCat] || "business";
+      
+      const specificType = tags.cuisine || tags.shop || rawCat;
+      
+      const imageKeyword = specificType.toLowerCase().replace(/[^a-z]/g, ',');
+      
+      const nameSeed = (tags.name || "store").toLowerCase().replace(/\s+/g, '');
 
-    return {
-      id: item.id || `osm-${index}`,
-      name: tags.name || "Local Business",
-      rating: (Math.random() * (5 - 3.8) + 3.8).toFixed(1),
-      categories: [uiCategory],
-      price: tags.price_level === "1" ? "$" : "$$",
-      distance: calculateDistance(lat, lng, 
-        item.lat || item.center?.lat, 
-        item.lon || item.center?.lon
-      ),
-      image: `https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&h=300&q=80&keywords=${imageKeyword}&sig=${item.id || index}`,
-      description: tags.description || `A great ${uiCategory} located in the area.`,
-      tags: [tags.cuisine || rawCat || "LOCAL"].map(t => String(t).toUpperCase()),
-    };
-  });
+      return {
+        id: item.id || `osm-${index}`,
+        name: tags.name || "Local Business",
+        rating: (Math.random() * (5 - 3.8) + 3.8).toFixed(1),
+        categories: [uiCategory],
+        price: tags.price_level === "1" ? "$" : "$$",
+        distance: calculateDistance(lat, lng, 
+          item.lat || item.center?.lat, 
+          item.lon || item.center?.lon
+        ),
+        image: `https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&h=400&q=80&keywords=${imageKeyword},food&sig=${item.id || index}`,
+        description: tags.description || `A local ${specificType.replace('_', ' ')} offering great service in the area.`,
+        tags: [tags.cuisine || rawCat || "LOCAL"].map(t => String(t).toUpperCase()),
+      };
+    });
 
     setApiBusinesses(transformed);
   } catch (err) {

@@ -147,7 +147,7 @@ function Businesses() {
         item.lat || item.center?.lat, 
         item.lon || item.center?.lon
       ),
-      image: `https://source.unsplash.com/featured/400x300?${imageKeyword}&sig=${item.id || index}`,
+      image: `https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&h=300&q=80&keywords=${imageKeyword}&sig=${item.id || index}`,
       description: tags.description || `A great ${uiCategory} located in the area.`,
       tags: [tags.cuisine || rawCat || "LOCAL"].map(t => String(t).toUpperCase()),
     };
@@ -590,7 +590,7 @@ function Businesses() {
                     </a>
                     <Link state={{ businessData: business }} to={`/business/${business.id}`} className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                       <div className="flex gap-2">
-                        {business.tags.map((tag, index) => (
+                        {business.tags?.map((tag, index) => (
                           <span key={index} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-[10px] font-bold rounded">{tag}</span>
                         ))}
                       </div>

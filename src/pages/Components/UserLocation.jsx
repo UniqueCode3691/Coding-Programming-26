@@ -1,11 +1,17 @@
+// UserLocation.jsx - Component for displaying user location and nearby businesses on a map.
+// This component uses Leaflet for map rendering and Overpass API to fetch nearby businesses.
+// It shows the user's location and markers for local businesses, with popups for details.
+
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { MapPin, Navigation } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
+// Remove default Leaflet icon URLs to use custom icons.
 delete L.Icon.Default.prototype._getIconUrl;
 
+// Custom icon for user location marker.
 const userLocationIcon = L.divIcon({
   html: `<div class="relative flex items-center justify-center">
            <div class="absolute h-8 w-8 bg-blue-500 rounded-full animate-ping opacity-30"></div>
@@ -15,6 +21,7 @@ const userLocationIcon = L.divIcon({
   iconSize: [32, 32],
 });
 
+// Custom icon for business markers.
 const businessIcon = L.divIcon({
   html: `<div class="flex items-center justify-center w-8 h-8 bg-olivesepia rounded-lg shadow-lg border-2 border-white rotate-45 hover:scale-110 transition-transform">
             <div class="-rotate-45">
@@ -26,6 +33,9 @@ const businessIcon = L.divIcon({
   iconAnchor: [16, 16]
 });
 
+// Function to fetch nearby businesses using Overpass API.
+// Takes latitude and longitude, queries for amenities and shops within 4km radius.
+// Handles retries for rate limiting and errors.
 const getOverpassBusinesses = async (lat, lng) => {
   const radius = 4000;
   const query = `
@@ -89,7 +99,8 @@ const getOverpassBusinesses = async (lat, lng) => {
   return [];
 };
 
-
+// Component to render markers for businesses on the map.
+// Takes user coordinates as props and fetches businesses when they change.
 function OverpassMarkers({ userCoords }) {
   const [businesses, setBusinesses] = useState([]);
 
@@ -121,6 +132,8 @@ function OverpassMarkers({ userCoords }) {
   );
 }
 
+// Component to handle location marker and events on the map.
+// Uses useMapEvents to listen for location found events.
 function LocationMarker({ onLocationFound }) {
   const map = useMapEvents({
     locationfound(e) {
@@ -133,6 +146,8 @@ function LocationMarker({ onLocationFound }) {
   return null; 
 }
 
+// Button to locate the user on the map.
+// Uses useMap to get the map instance and call locate.
 function LocateButton() {
   const map = useMap();
   return (
@@ -145,6 +160,9 @@ function LocateButton() {
   );
 }
 
+// Main UserLocation component.
+// Renders a map with user location, nearby businesses, and controls.
+// Takes onLocationFound callback and coords as props.
 export default function UserLocation({ onLocationFound, coords }) {
   const defaultCenter = [43.011589, -78.710838]; 
 

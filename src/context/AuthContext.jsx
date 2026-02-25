@@ -1,12 +1,25 @@
+// AuthContext.jsx - Authentication context provider for the NearMeer application.
+// This file manages user authentication state using Supabase.
+// It provides functions for signing up, signing in, signing out, and handling authentication changes.
+// The context is used throughout the app to access the current user session and authentication methods.
+
 import { createContext, useEffect, useState, useContext } from "react";
 import { supabase } from "../SupabaseClient";
 
+// Create the AuthContext to hold authentication state and methods.
 const AuthContext = createContext()
 
+// AuthContextProvider component that wraps the app and provides authentication functionality.
+// It manages the session state, loading state, and exposes authentication methods to child components.
 export const AuthContextProvider = ({children}) => {
+    // State to hold the current user session. Undefined initially, then null or session object.
     const [session, setSession] = useState(undefined)
+    // State to indicate if authentication is loading.
     const [loading, setLoading] = useState(true)
 
+    // Function to sign up a new user.
+    // Takes name, email, password, captcha token, and account type.
+    // Signs up with Supabase auth, then upserts the profile in the profiles table.
     const signUpNewUser = async (name, email, password, captchaToken, type) => {
         const {data, error} = await supabase.auth.signUp({
             email: email, password: password,
@@ -38,6 +51,9 @@ export const AuthContextProvider = ({children}) => {
         return { success: true, data }
     }
 
+    // Function to sign in an existing user.
+    // Takes email, password, and captcha token.
+    // Signs in with Supabase, then fetches the account type from profiles.
     const signInUser = async (email, password, captchaToken) => {
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
@@ -58,6 +74,10 @@ export const AuthContextProvider = ({children}) => {
         return { success: true, user: data.user, accountType: profile.account_type };
     };
 
+    // useEffect to initialize the session and listen for auth state changes.
+    // On mount, gets the current session.
+    // Sets up a listener for auth state changes (sign in, sign out, etc.).
+    // Ensures the profile exists and has account_type.
     useEffect(() => {
         let mounted = true
 
@@ -125,6 +145,8 @@ export const AuthContextProvider = ({children}) => {
             subscription.unsubscribe()
         }
     }, [])
+    // Function to sign out the current user.
+    // Signs out with Supabase, clears local storage, and resets session state.
     const signOut = async () => {
         console.debug('[Auth] signOut called');
         try {
@@ -145,6 +167,8 @@ export const AuthContextProvider = ({children}) => {
         }
     };
 
+    // Function to sign in with Google OAuth.
+    // Redirects to Google for authentication, then back to the app.
     const signInWithGoogle = async () => {
         try {
             const { data, error } = await supabase.auth.signInWithOAuth({
@@ -171,6 +195,8 @@ export const AuthContextProvider = ({children}) => {
             return { success: false, error: error.message }
         }
     }
+    // Function to send a magic link for passwordless sign-in.
+    // Sends an OTP to the user's email.
     const sendMagicLink = async (email, captchaToken) => {
         try {
             const { error } = await supabase.auth.signInWithOtp({
@@ -188,13 +214,17 @@ export const AuthContextProvider = ({children}) => {
         }
     };
 
-        return (
-            <AuthContext.Provider value={{ session, loading, signUpNewUser, signInUser, signInWithGoogle, signOut, sendMagicLink }}>
-                {children}
-            </AuthContext.Provider>
+    // Provide the context value to child components.
+    // Includes session, loading, and all auth methods.
+    return (
+        <AuthContext.Provider value={{ session, loading, signUpNewUser, signInUser, signInWithGoogle, signOut, sendMagicLink }}>
+            {children}
+        </AuthContext.Provider>
     )
 }
 
+// Custom hook to use the AuthContext.
+// Allows components to access authentication state and methods easily.
 export const UserAuth = () => {
     return useContext(AuthContext)
 }

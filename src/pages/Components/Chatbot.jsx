@@ -1,11 +1,19 @@
+// Chatbot.jsx - AI-powered chatbot component for NearMeer.
+// This component provides a chat interface using OpenAI's API.
+// It allows users to ask questions and get responses related to local businesses and recommendations.
+
 import { useState } from "react";
 import OpenAI from "openai";
 
+// Initialize OpenAI client with API key from environment variables.
+// Allows browser usage for client-side requests.
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
   dangerouslyAllowBrowser: true,
 });
 
+// Function to get user coordinates.
+// Returns a promise that resolves to lat/lng or unknown if failed.
 export const getCoords = () => {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
@@ -16,8 +24,11 @@ export const getCoords = () => {
   });
 };
 
+// Get user coordinates, default to unknown if failed.
 const userCoords = await getCoords().catch(() => ({ lat: "unknown", lng: "unknown" }));
 
+// Main Chatbot component.
+// Manages chat state, sends messages to OpenAI, and renders the chat UI.
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -26,6 +37,8 @@ export default function Chatbot() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Function to handle sending a message.
+  // Adds user message, sends to OpenAI, adds bot response.
   const handleSend = async () => {
     if (inputValue.trim() && !isLoading) {
       const userMessage = { text: inputValue, sender: "user" };
@@ -34,16 +47,19 @@ export default function Chatbot() {
       setIsLoading(true);
 
       try {
+        // Prepare conversation history for OpenAI.
         const conversation = messages.concat(userMessage).map(msg => ({
           role: msg.sender === "user" ? "user" : "assistant",
           content: msg.text,
         }));
 
+        // System prompt to guide the AI's responses.
         const systemPrompt = {
           role: "system",
           content: "You are NearMeer AI, a helpful chatbot for the NearMeer platform. NearMeer helps users find local businesses, services, and recommendations. Provide suggestions for businesses, locations, or related advice based on user queries. Keep responses friendly, concise, and relevant to local discovery. The user's location is " + userCoords.lat + ", " + userCoords.lng + ". Use this information to provide location-specific recommendations when appropriate."
         };
 
+        // Call OpenAI API for chat completion.
         const response = await openai.chat.completions.create({
           model: "gpt-4",
           messages: [systemPrompt, ...conversation],
@@ -64,9 +80,12 @@ export default function Chatbot() {
   };
 
   return (
+    // Fixed position chat widget.
     <div className="fixed right-5 bottom-5 z-50">
       {open && (
+        // Chat window when open.
         <div className="absolute bottom-16 right-0 w-80 h-96 bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col transform transition-all duration-300 ease-in-out">
+          {/* Chat header with close button. */}
           <div className="bg-gradient-to-r from-olivegreen to-olivedarkgreen text-white p-4 font-semibold rounded-t-lg flex justify-between items-center">
             NearMeer AI
             <button
@@ -77,6 +96,7 @@ export default function Chatbot() {
             </button>
           </div>
 
+          {/* Messages container. */}
           <div className="flex-1 p-4 overflow-y-auto bg-white">
             {messages.map((msg, index) => (
               <div
@@ -90,6 +110,7 @@ export default function Chatbot() {
                 {msg.text}
               </div>
             ))}
+            {/* Loading indicator. */}
             {isLoading && (
               <div className="bg-white text-olivedarkgreen p-3 rounded-lg mb-2 max-w-48 shadow-sm">
                 Typing...
@@ -97,6 +118,7 @@ export default function Chatbot() {
             )}
           </div>
 
+          {/* Input area. */}
           <div className="p-4 border-t border-gray-200 flex">
             <input
               className="flex-1 border border-gray-300 rounded-l-lg px-3 py-2 outline-none focus:ring-2 focus:ring-olivegreen"
@@ -117,6 +139,7 @@ export default function Chatbot() {
         </div>
       )}
 
+      {/* Chat toggle button. */}
       <button
         className="w-14 h-14 bg-gradient-to-r from-olivegreen to-olivedarkgreen text-white rounded-full shadow-lg hover:from-olivedarkgreen hover:to-oliveleather transition-all duration-300 cursor-pointer flex items-center justify-center text-2xl animate-pulse"
         onClick={() => setOpen(!open)}

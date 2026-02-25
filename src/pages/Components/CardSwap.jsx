@@ -1,6 +1,13 @@
-import React, { Children, cloneElement, forwardRef, isValidElement, useEffect, useMemo, useRef } from 'react';
-import gsap from 'gsap';
+// CardSwap.jsx - Animated card swapping component.
+// This component displays a stack of cards that swap positions with animation.
+// It uses GSAP for animations and React for state management.
+// Cards are positioned in 3D space and swap to the front on a timer or pause on hover.
 
+import React, { useMemo, useRef, useEffect, Children, cloneElement, isValidElement } from 'react';
+import { gsap } from 'gsap';
+
+// Card component for individual cards in the stack.
+// It renders a div with 3D transform styles for positioning.
 export const Card = forwardRef(({ className = '', style = {}, ...rest }, ref) => (
   <div
     ref={ref}
@@ -17,6 +24,8 @@ export const Card = forwardRef(({ className = '', style = {}, ...rest }, ref) =>
 ));
 Card.displayName = 'Card';
 
+// Function to calculate the position of a card in the stack.
+// Takes the index, horizontal and vertical distances, and total cards.
 const makeSlot = (i, distX, distY, total) => ({
   x: i * distX,
   y: -i * distY,
@@ -24,6 +33,8 @@ const makeSlot = (i, distX, distY, total) => ({
   zIndex: total - i
 });
 
+// Function to place a card element at a specific slot with skew.
+// Uses GSAP to set the transform properties.
 const placeNow = (el, slot, skew) =>
   gsap.set(el, {
     x: slot.x,
@@ -37,6 +48,8 @@ const placeNow = (el, slot, skew) =>
     force3D: true
   });
 
+// Main CardSwap component.
+// Manages the card stack animation and rendering.
 const CardSwap = ({
   width = 500,
   height = 400,
@@ -50,18 +63,25 @@ const CardSwap = ({
   className = '', // <-- new prop
   children
 }) => {
+  // Configuration for animation based on easing type.
   const config =
     easing === 'elastic'
       ? { ease: 'elastic.out(0.6,0.9)', durDrop: 2, durMove: 2, durReturn: 2, promoteOverlap: 0.9, returnDelay: 0.05 }
       : { ease: 'power1.inOut', durDrop: 0.8, durMove: 0.8, durReturn: 0.8, promoteOverlap: 0.45, returnDelay: 0.2 };
 
+  // Memoize the children array and refs for performance.
   const childArr = useMemo(() => Children.toArray(children), [children]);
   const refs = useMemo(() => childArr.map(() => React.createRef()), [childArr.length]);
+  // Ref for the order of cards.
   const order = useRef(Array.from({ length: childArr.length }, (_, i) => i));
+  // Ref for the GSAP timeline.
   const tlRef = useRef(null);
+  // Ref for the interval timer.
   const intervalRef = useRef();
+  // Ref for the container element.
   const container = useRef(null);
 
+  // useEffect to set up the initial positions and animation loop.
   useEffect(() => {
     const total = refs.length;
     refs.forEach((r, i) => placeNow(r.current, makeSlot(i, cardDistance, verticalDistance, total), skewAmount));
@@ -104,6 +124,7 @@ const CardSwap = ({
     return () => clearInterval(intervalRef.current);
   }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing, refs]);
 
+  // Render the children with refs and event handlers.
   const rendered = childArr.map((child, i) =>
     isValidElement(child)
       ? cloneElement(child, {
@@ -116,6 +137,7 @@ const CardSwap = ({
       : child
   );
 
+  // Return the container div with the rendered cards.
   return (
     <div
       ref={container}

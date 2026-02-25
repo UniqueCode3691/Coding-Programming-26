@@ -3,7 +3,7 @@
 // It uses GSAP for animations and React for state management.
 // Cards are positioned in 3D space and swap to the front on a timer or pause on hover.
 
-import React, { useMemo, useRef, useEffect, Children, cloneElement, isValidElement } from 'react';
+import React, { useMemo, useRef, useEffect, Children, cloneElement, forwardRef, isValidElement } from 'react';
 import { gsap } from 'gsap';
 
 // Card component for individual cards in the stack.

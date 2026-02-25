@@ -1,3 +1,7 @@
+// SignIn.jsx - User sign-in page component.
+// This component provides multiple authentication methods: email/password, Google OAuth, and magic link.
+// Includes CAPTCHA verification and handles business account detection to redirect to appropriate login.
+
 import React, { useState } from 'react'
 import LoginImage from '../assets/neighborhood.jpg'
 import NMImage from '../assets/NearMeerLogoImgOnly.png'
@@ -6,17 +10,33 @@ import { UserAuth } from '../context/AuthContext'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { supabase } from '../SupabaseClient'
 
+// SignIn functional component.
+// Manages user authentication state and provides multiple sign-in options.
+// Handles form validation, CAPTCHA, and navigation after successful login.
 const SignIn = () => {
+  // State for form inputs.
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+
+  // State for error messages and loading status.
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+
+  // State for CAPTCHA token.
   const [captchaToken, setCaptchaToken] = useState(null)
+
+  // Navigation hook.
   const navigate = useNavigate()
-    const { session, signInUser, signInWithGoogle, sendMagicLink, signOut } = UserAuth()
+
+  // Auth context functions.
+  const { session, signInUser, signInWithGoogle, sendMagicLink, signOut } = UserAuth()
+
+  // State for magic link mode and success status.
   const [isMagicLinkMode, setIsMagicLinkMode] = useState(false);
   const [linkSent, setLinkSent] = useState(false);
 
+  // Function to handle magic link authentication.
+  // Sends passwordless login link to user's email.
   const handleMagicLink = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -29,6 +49,8 @@ const SignIn = () => {
     setLoading(false);
   };
 
+  // Function to handle email/password sign-in.
+  // Validates CAPTCHA, calls auth function, and handles business account detection.
   const handleSignIn = async (e) => {
     e.preventDefault();
     if (!captchaToken) {
@@ -57,6 +79,8 @@ const SignIn = () => {
     }
   }
 
+  // Function to handle Google OAuth sign-in.
+  // Initiates OAuth flow and handles navigation on success.
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError("");
@@ -78,6 +102,7 @@ const SignIn = () => {
 
   return (
       <div className='flex flex-row'>
+        {/* Left side - Background image and branding */}
         <div className='flex w-1/2 h-screen'>
           <img src={LoginImage} alt="Background image for town" className='h-full object-cover' />
           <div className='absolute top-0 left-0 h-full w-1/2 bg-black opacity-30'></div>
@@ -92,9 +117,13 @@ const SignIn = () => {
             <p className='text-white text-xl'>Discover unique local businesses, read authentic reviews, and connect with your neighbors in a meaningful way.</p>
           </div>
         </div>
+
+        {/* Right side - Sign-in form */}
         <div className='flex flex-col w-1/2 h-screen bg-olivetan overflow-y-auto'>
           <p className='text-4xl font-semibold mx-auto mt-15'>Welcome back, neighbor!</p>
           <p className='mt-3 mx-auto text-xl text-olivegreen'>Sign in to see what's happening in your community today!</p>
+
+          {/* Magic link success message */}
           {linkSent ? (
             <div className='mt-10 mx-15 p-6 bg-white border-2 border-olivegreen rounded-3xl text-center shadow-sm'>
               <p className='font-bold text-olivegreen text-lg'>Check your inbox!</p>
@@ -103,23 +132,34 @@ const SignIn = () => {
             </div>
           ): (
           <form onSubmit={handleSignIn} className='flex flex-col mx-auto mt-15'>
+            {/* Email input */}
             <p className='ml-2 font-semibold text-md mb-2'>Email:</p>
             <input onChange={(e) => setEmail(e.target.value)} placeholder='Enter your email:' type="email" className="w-100 p-4 px-5 bg-white focus:outline-none focus:ring-0 focus:border-transparent rounded-full focus-within:border-2 hover:border-2 border-olivegreen"/>
+
+            {/* Password input with forgot password link */}
             <div className='flex flex-row justify-between'>
               <p className='ml-2 font-semibold text-md mb-2 mt-5'>Password:</p>
               <button onClick={handleMagicLink} type="button" className='text-red-700 mt-5'>Forgot Password?</button>
             </div>
             <input onChange={(e) => setPassword(e.target.value)} placeholder='Enter your password:' type="password" className=" w-100 p-4 px-5  bg-white focus:outline-none focus:ring-0 focus:border-transparent rounded-full focus-within:border-2 hover:border-2 border-olivegreen" />
+
+            {/* CAPTCHA verification */}
             <div className='mx-auto mt-6'>
-                <Turnstile 
-                    siteKey={import.meta.env.VITE_CAPTCHA_SITE_KEY}//
-                    onSuccess={(token) => setCaptchaToken(token)} 
+                <Turnstile
+                    siteKey={import.meta.env.VITE_CAPTCHA_SITE_KEY}
+                    onSuccess={(token) => setCaptchaToken(token)}
                 />
             </div>
+
+            {/* Sign-in button */}
             <button type='submit' disabled={loading} className='text-xl mt-10 bg-olivegreen py-3 rounded-full font-semibold transform transition-transform duration-200 ease-in-out hover:scale-110'>
               {loading ? "Signing in..." : "Login"}
             </button>
+
+            {/* Error message display */}
             {error && <p className='text-red-700 mx-auto pt-10'>{error}</p>}
+
+            {/* Divider */}
             <div className='flex justify-between flex-row mt-5'>
               <hr className='w-40 my-auto border-gray-400' />
               <p className='text-gray-400 font-semibold'>OR</p>
@@ -127,6 +167,8 @@ const SignIn = () => {
             </div>
           </form>
           )}
+
+          {/* Google sign-in button */}
           <div className="flex justify-center gap-4 mt-5">
               <button onClick={handleGoogleSignIn} className="flex items-center justify-center px-5 h-14 rounded-full border border-[#dde7d0] dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-all group">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -138,6 +180,8 @@ const SignIn = () => {
                 <p className='ml-3 font-semibold text-lg'>Sign in with Google</p>
               </button>
             </div>
+
+            {/* Sign-up link */}
             <p className='text-center mt-4 font-semibold'>New to the neighborhood? <Link className='text-olivegreen hover:underline' to='/sign-up'>Create an account!</Link></p>
         </div>
       </div>

@@ -1,3 +1,7 @@
+// Businesses.jsx - Main business listing page component.
+// This component displays a list of local businesses with filtering, sorting, pagination, and geolocation features.
+// It fetches data from Overpass API for OSM data and Supabase for custom locations, applies filters, and renders business cards.
+
 import React, { useState } from 'react';
 import Header from './Components/Header';
 import Footer from './Components/Footer';
@@ -51,120 +55,133 @@ function Businesses() {
     gym: 'Active Life',
     park: 'Active Life'
   };
+  // Function to fetch business data from Overpass API (OpenStreetMap).
+  // Queries for amenities within a radius, with retry logic for rate limits.
+  // Falls back to Supabase if no OSM data.
   const fetchOverpassData = async (lat, lng, dist) => {
-  if (fetchLock.current) return;
-  fetchLock.current = true;
-  setLoading(true);
-  
-  if (lat == null || lng == null) {
-    console.warn('No coordinates provided to fetchOverpassData; skipping fetch.');
-    setLoading(false);
-    fetchLock.current = false;
-    return;
-  }
+    if (fetchLock.current) return; // Prevent concurrent fetches
+    fetchLock.current = true;
+    setLoading(true);
 
-  const radius = dist * 1609;
-  const overpassQuery = `
-    [out:json][timeout:25];
-    (
-      node["amenity"~"restaurant|cafe|bar|pub|gym"](around:${radius},${lat},${lng});
-      node["shop"~"bakery|clothes|supermarket"](around:${radius},${lat},${lng});
-      node["leisure"~"park"](around:${radius},${lat},${lng});
-    );
-    out tags center;
-  `;
-
-  const url = `https://lz4.overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
-  const maxAttempts = 3;
-  let attempt = 0;
-  let elements = [];
-
-  while (attempt < maxAttempts) {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        if (response.status === 429) {
-          attempt += 1;
-          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
-          continue;
-        }
-        break;
-      }
-      const data = await response.json();
-      elements = data?.elements || [];
-      break;
-    } catch (err) {
-      attempt += 1;
-      if (attempt < maxAttempts) continue;
-      break;
-    }
-  }
-
-  if (!elements || elements.length === 0) {
-    try {
-      const { data: rows, error } = await supabase
-        .from('locations')
-        .select('*')
-        .order('name', { ascending: true })
-        .limit(200);
-
-      if (error) throw error;
-
-      elements = (rows || []).map(r => ({
-        id: r.id,
-        lat: r.latitude || r.lat, 
-        lon: r.longitude || r.lon,
-        tags: {
-          name: r.name,
-          amenity: r.category,
-          description: r.description || r.address
-        }
-      }));
-    } catch (err) {
-      console.error('Fallback failed:', err);
-      setApiBusinesses([]);
+    if (lat == null || lng == null) {
+      console.warn('No coordinates provided to fetchOverpassData; skipping fetch.');
       setLoading(false);
       fetchLock.current = false;
       return;
     }
-  }
 
-  try {
-    const transformed = elements.map((item, index) => {
-      const tags = item.tags || {};
-      const rawCat = tags.amenity || tags.shop || tags.leisure || "business";
-      const uiCategory = categoryMap[rawCat] || "business";
-      
-      const specificType = tags.cuisine || tags.shop || rawCat;
-      
-      const imageKeyword = specificType.toLowerCase().replace(/[^a-z]/g, ',');
-      
-      const nameSeed = (tags.name || "store").toLowerCase().replace(/\s+/g, '');
+    // Calculate radius in meters (dist is in miles).
+    const radius = dist * 1609;
 
-      return {
-        id: item.id || `osm-${index}`,
-        name: tags.name || "Local Business",
-        rating: (Math.random() * (5 - 3.8) + 3.8).toFixed(1),
-        categories: [uiCategory],
-        price: tags.price_level === "1" ? "$" : "$$",
-        distance: calculateDistance(lat, lng, 
-          item.lat || item.center?.lat, 
-          item.lon || item.center?.lon
-        ),
-        image: `https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&h=400&q=80&keywords=${imageKeyword},food&sig=${item.id || index}`,
-        description: tags.description || `A local ${specificType.replace('_', ' ')} offering great service in the area.`,
-        tags: [tags.cuisine || rawCat || "LOCAL"].map(t => String(t).toUpperCase()),
-      };
-    });
+    // Overpass query for relevant amenities.
+    const overpassQuery = `
+      [out:json][timeout:25];
+      (
+        node["amenity"~"restaurant|cafe|bar|pub|gym"](around:${radius},${lat},${lng});
+        node["shop"~"bakery|clothes|supermarket"](around:${radius},${lat},${lng});
+        node["leisure"~"park"](around:${radius},${lat},${lng});
+      );
+      out tags center;
+    `;
 
-    setApiBusinesses(transformed);
-  } catch (err) {
-    console.error('Error transforming elements:', err);
-  } finally {
-    setLoading(false);
-    fetchLock.current = false;
-  }
-};
+    const url = `https://lz4.overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
+    const maxAttempts = 3;
+    let attempt = 0;
+    let elements = [];
+
+    // Retry loop for API calls.
+    while (attempt < maxAttempts) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          if (response.status === 429) { // Rate limited
+            attempt += 1;
+            await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt))); // Exponential backoff
+            continue;
+          }
+          break;
+        }
+        const data = await response.json();
+        elements = data?.elements || [];
+        break;
+      } catch (err) {
+        attempt += 1;
+        if (attempt < maxAttempts) continue;
+        break;
+      }
+    }
+
+    // Fallback to Supabase if no OSM data.
+    if (!elements || elements.length === 0) {
+      try {
+        const { data: rows, error } = await supabase
+          .from('locations')
+          .select('*')
+          .order('name', { ascending: true })
+          .limit(200);
+
+        if (error) throw error;
+
+        // Transform Supabase rows to match OSM format.
+        elements = (rows || []).map(r => ({
+          id: r.id,
+          lat: r.latitude || r.lat,
+          lon: r.longitude || r.lon,
+          tags: {
+            name: r.name,
+            amenity: r.category,
+            description: r.description || r.address
+          }
+        }));
+      } catch (err) {
+        console.error('Fallback failed:', err);
+        setApiBusinesses([]);
+        setLoading(false);
+        fetchLock.current = false;
+        return;
+      }
+    }
+
+    try {
+      // Transform OSM/Supabase data into UI-friendly business objects.
+      const transformed = elements.map((item, index) => {
+        const tags = item.tags || {};
+        const rawCat = tags.amenity || tags.shop || tags.leisure || "business";
+        const uiCategory = categoryMap[rawCat] || "business";
+
+        const specificType = tags.cuisine || tags.shop || rawCat;
+
+        // Generate image keyword for Unsplash.
+        const imageKeyword = specificType.toLowerCase().replace(/[^a-z]/g, ',');
+
+        const nameSeed = (tags.name || "store").toLowerCase().replace(/\s+/g, '');
+
+        return {
+          id: item.id || `osm-${index}`,
+          name: tags.name || "Local Business",
+          rating: (Math.random() * (5 - 3.8) + 3.8).toFixed(1), // Random rating between 3.8-5
+          categories: [uiCategory],
+          price: tags.price_level === "1" ? "$" : "$$", // Default price level
+          distance: calculateDistance(lat, lng,
+            item.lat || item.center?.lat,
+            item.lon || item.center?.lon
+          ),
+          image: `https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&h=400&q=80&keywords=${imageKeyword},food&sig=${item.id || index}`,
+          description: tags.description || `A local ${specificType.replace('_', ' ')} offering great service in the area.`,
+          tags: [tags.cuisine || rawCat || "LOCAL"].map(t => String(t).toUpperCase()),
+        };
+      });
+
+      setApiBusinesses(transformed);
+    } catch (err) {
+      console.error('Error transforming elements:', err);
+    } finally {
+      setLoading(false);
+      fetchLock.current = false;
+    }
+  };
+  // Function to handle search form submission.
+  // Currently clears the query (placeholder functionality).
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim()) {
@@ -172,17 +189,19 @@ function Businesses() {
     }
   };
 
+  // Function to get numeric value for price string (e.g., '$' -> 1).
   const getPriceValue = (price) => {
     return price.length;
   };
 
+  // Function to sort businesses based on sortBy state.
   const sortBusinesses = (businesses) => {
     const sorted = [...businesses];
     switch (sortBy) {
       case 'Highest Rated':
         return sorted.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
       case 'Most Reviewed':
-        return sorted.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
+        return sorted.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating)); // Placeholder, same as rating
       case 'Closest':
         return sorted.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
       default:
@@ -264,19 +283,21 @@ function Businesses() {
     return 'storefront';
   };
 
+  // Function to filter businesses based on applied filters.
   const filterBusinesses = () => {
-  return apiBusinesses.filter(business => {
-    const categoryMatch = appliedFilters.categories.includes('All') || 
-                         business.categories.some(cat => appliedFilters.categories.includes(cat));
+    return apiBusinesses.filter(business => {
+      const categoryMatch = appliedFilters.categories.includes('All') ||
+                           business.categories.some(cat => appliedFilters.categories.includes(cat));
 
-    const ratingMatch = parseFloat(business.rating) >= parseFloat(appliedFilters.rating);
-    const priceMatch = getPriceValue(business.price) <= getPriceValue(appliedFilters.price);
-    const distanceMatch = parseFloat(business.distance) <= appliedFilters.distance;
+      const ratingMatch = parseFloat(business.rating) >= parseFloat(appliedFilters.rating);
+      const priceMatch = getPriceValue(business.price) <= getPriceValue(appliedFilters.price);
+      const distanceMatch = parseFloat(business.distance) <= appliedFilters.distance;
 
-    return categoryMatch && ratingMatch && priceMatch && distanceMatch;
-  });
-};
+      return categoryMatch && ratingMatch && priceMatch && distanceMatch;
+    });
+  };
 
+  // Function to apply selected filters and re-fetch data if needed.
   const handleApplyFilters = () => {
     setAppliedFilters({
       categories: selectedCategories.length > 0 ? selectedCategories : ['Restaurants'],
@@ -302,9 +323,10 @@ function Businesses() {
     } else {
       setLocationError('Geolocation is not supported by your browser.');
     }
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to first page
   };
 
+  // Filtered, sorted, and paginated businesses.
   const filteredBusinesses = filterBusinesses();
   const businessesPerPage = 4;
   const sortedBusinesses = sortBusinesses(filteredBusinesses);
@@ -313,6 +335,7 @@ function Businesses() {
     currentPage * businessesPerPage
   );
 
+  // Function to render star rating icons.
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -327,6 +350,7 @@ function Businesses() {
     return stars;
   };
 
+  // Function to toggle category selection.
   const handleCategoryChange = (category) => {
     setSelectedCategories(prev =>
       prev.includes(category)
@@ -335,28 +359,35 @@ function Businesses() {
     );
   };
 
+  // Function to set selected rating.
   const handleRatingClick = (rating) => {
     setSelectedRating(rating);
   };
 
+  // Function to set selected price.
   const handlePriceClick = (price) => {
     setSelectedPrice(price);
   };
 
+  // Function to handle distance slider change.
   const handleDistanceChange = (e) => {
     setDistance(parseInt(e.target.value));
   };
 
+  // Function to change current page.
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
+  // Function to handle sort dropdown change.
   const handleSortChange = (e) => {
     setSortBy(e.target.value);
   };
 
+  // Calculate total pages for pagination.
   const totalPages = Math.ceil(sortedBusinesses.length / businessesPerPage);
 
+  // Calculate visible page buttons for pagination.
   const maxVisibleButtons = 5;
   let startPage = Math.max(1, currentPage - Math.floor(maxVisibleButtons / 2));
   let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
@@ -366,14 +397,16 @@ function Businesses() {
   }
 
   const visiblePages = Array.from(
-    { length: (endPage - startPage) + 1 }, 
+    { length: (endPage - startPage) + 1 },
     (_, i) => startPage + i
   );
 
+  // Render the component UI.
   return (
     <div className="bg-olivedarkgreen text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 flex flex-col lg:flex-row gap-8">
+        {/* Mobile search bar */}
         <div className="w-full mb-6 sm:hidden">
           <form onSubmit={handleSearch} className="bg-white rounded-full p-1.5 flex flex-row focus-within:border-2 hover:border-2 border-olivegreen">
             <input

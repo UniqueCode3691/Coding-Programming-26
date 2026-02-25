@@ -1,3 +1,7 @@
+// BusinessesDashboard.jsx - Dashboard for business owners.
+// This component displays a personalized dashboard for authenticated business users, showing profile info, properties, stats, and management options.
+// It fetches user profile and business locations from Supabase.
+
 import React, { useEffect, useState } from 'react'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
@@ -12,17 +16,35 @@ import left from "../assets/icons/left.png"
 import right from "../assets/icons/right.png"
 import locationon from "../assets/icons/locationon.png"
 
+// BusinessesDashboard functional component.
+// Manages state for user profile, properties, editing, and loading states.
+// Displays dashboard with stats, properties list, and management actions.
 export default function BusinessesDashboard() {
+  // Get auth context: session, loading, signOut.
   const {session, loading, signOut} = UserAuth()
+
+  // State for user profile data.
   const [profile, setProfile] = useState(null)
+
+  // State for user's business properties/locations.
   const [properties, setProperties] = useState([])
+
+  // State for loading properties.
   const [propertiesLoading, setPropertiesLoading] = useState(true)
+
+  // State for ID of property being edited.
   const [editingId, setEditingId] = useState(null)
+
+  // State for edit form data.
   const [editForm, setEditForm] = useState({})
+
+  // State for loading during property actions.
   const [propActionLoading, setPropActionLoading] = useState(false)
 
+  // Effect to load profile and properties on mount or session change.
   useEffect(() => {
     let mounted = true
+    // Function to load user profile.
     const loadProfile = async () => {
       try {
         if (!session?.user?.id) return
@@ -38,6 +60,8 @@ export default function BusinessesDashboard() {
     }
 
     loadProfile()
+
+    // Function to load user's business properties.
     const loadProperties = async () => {
       setPropertiesLoading(true)
       try {
@@ -59,6 +83,7 @@ export default function BusinessesDashboard() {
     return () => { mounted = false }
   }, [session])
 
+  // Show loading if auth is loading.
   if (loading) return <div className="p-8">Loading...</div>
   return (
     <>

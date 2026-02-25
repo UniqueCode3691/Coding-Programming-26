@@ -1,3 +1,7 @@
+// BusinessesSignIn.jsx - Sign-in page for business users.
+// This component provides a sign-in form for business owners, including email/password authentication, CAPTCHA verification, and account type validation.
+// Redirects to business dashboard upon successful authentication.
+
 import React, { useState } from 'react'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
@@ -6,20 +10,41 @@ import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../SupabaseClient'
 import { Turnstile } from '@marsidev/react-turnstile'
 
+// BusinessesSignIn functional component.
+// Manages state for form inputs, loading, errors, and CAPTCHA token.
+// Handles sign-in process with validation and navigation.
 export default function BusinessesSignIn() {
+  // State for toggling password visibility.
   const [showPassword, setShowPassword] = useState(false)
+
+  // State for email input.
   const [email, setEmail] = useState("")
+
+  // State for password input.
   const [password, setPassword] = useState("")
+
+  // State for error messages.
   const [error, setError] = useState("")
+
+  // State for loading indicator.
   const [loading, setLoading] = useState(false)
+
+  // State for CAPTCHA token.
   const [captchaToken, setCaptchaToken] = useState(null)
+
+  // Get sign-in and sign-out functions from auth context.
   const { signInUser, signOut } = UserAuth();
+
+  // Hook for navigation.
   const navigate = useNavigate();
+
+  // Function to handle form submission and sign-in.
   const handleSignIn = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    // Validate CAPTCHA.
     if (!captchaToken) {
       setError("Please complete the security check.");
       setLoading(false);
@@ -27,15 +52,18 @@ export default function BusinessesSignIn() {
     }
 
     try {
+      // Attempt sign-in.
       const result = await signInUser(email, password, captchaToken);
 
       if (result.success) {
+        // Check if account is business type.
         if (result.accountType !== 'business') {
           await signOut();
           setError("This is not a Business account. Please use the regular login page.");
           setLoading(false);
           return;
         }
+        // Navigate to dashboard on success.
         navigate('/businesses-dashboard');
       } else {
         setError(result.error);

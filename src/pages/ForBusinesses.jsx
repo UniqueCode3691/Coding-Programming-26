@@ -1,3 +1,7 @@
+// ForBusinesses.jsx - Business landing page component.
+// This component displays a marketing page for businesses to sign up for NearMeer, showcasing benefits, analytics, and success stories.
+// Includes hero section, benefits grid, analytics charts, and testimonials.
+
 import React from 'react'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
@@ -10,13 +14,16 @@ import checkcircleIcon from '../assets/icons/checkcircle.png'
 import Star from './Components/Star'
 import Chatbot from './Components/Chatbot';
 
-
+// ForBusinesses functional component.
+// Renders a static landing page with multiple sections to attract business users.
+// No state management needed as it's a presentation component.
 export default function ForBusinesses() {
   return (
     <div className="w-full min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="max-w-[1200px] mx-auto px-6 flex-1">
+        {/* Hero section with title, description, and CTA buttons */}
         <section className="py-16 md:py-24">
           <div className="flex flex-col gap-10 md:flex-row items-center">
             <div className="flex-1 flex flex-col gap-8 order-2 md:order-1">
@@ -28,6 +35,7 @@ export default function ForBusinesses() {
                   Connect with your local community, build trust through reviews, and scale your operations with data-driven insights.
                 </p>
               </div>
+              {/* Call-to-action buttons for sign up and login */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/businesses-sign-up" className="flex min-w-[180px] items-center justify-center rounded-full h-14 px-8 bg-olivesepia text-white text-lg font-bold tracking-wide shadow-lg shadow-olivesepia/20 hover:scale-105 transition-transform">
                   Sign Up
@@ -37,6 +45,7 @@ export default function ForBusinesses() {
                 </Link>
               </div>
             </div>
+            {/* Hero image with glow effect */}
             <div className="flex-1 order-1 md:order-2 w-full">
               <div className="relative group">
                 <div className="absolute -inset-4 bg-olivesepia/10 rounded-xl blur-2xl group-hover:bg-olivesepia/20 transition-all"></div>
@@ -45,13 +54,17 @@ export default function ForBusinesses() {
             </div>
           </div>
         </section>
+
+        {/* Benefits section with three key features */}
         <section className="py-20 border-t border-olivetan" id="benefits">
           <div className="flex flex-col gap-12">
             <div className="flex flex-col gap-4 max-w-[720px]">
               <h2 className="text-olivesepia text-sm font-bold uppercase tracking-[0.2em]">Why Choose Us</h2>
               <h3 className="text-olivegreen text-4xl font-bold leading-tight">Everything you need to thrive in your neighborhood.</h3>
             </div>
+            {/* Benefits grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Local Visibility benefit */}
               <div className="flex flex-col gap-4 rounded-lg border border-olivetan bg-white p-8 hover:shadow-xl transition-shadow">
                 <div className="size-12 rounded-full bg-olivesepia/10 text-olivesepia flex items-center justify-center">
                   <img src={visibilityIcon} alt="Visibility Icon" />
@@ -63,6 +76,8 @@ export default function ForBusinesses() {
                   </p>
                 </div>
               </div>
+
+              {/* Trusted Reviews benefit */}
               <div className="flex flex-col gap-4 rounded-lg border border-olivetan bg-white p-8 hover:shadow-xl transition-shadow">
                 <div className="size-12 rounded-full bg-olivesepia/10 text-olivesepia flex items-center justify-center">
                   <img src={reviewsIcon} alt="Reviews Icon" />
@@ -74,6 +89,8 @@ export default function ForBusinesses() {
                   </p>
                 </div>
               </div>
+
+              {/* Smart Analytics benefit */}
               <div className="flex flex-col gap-4 rounded-lg border border-olivetan bg-white p-8 hover:shadow-xl transition-shadow">
                 <div className="size-12 rounded-full bg-olivesepia/10 text-olivesepia flex items-center justify-center">
                   <img src={barchartIcon} alt="Analytics Icon" />
@@ -88,9 +105,12 @@ export default function ForBusinesses() {
             </div>
           </div>
         </section>
+
+        {/* Analytics section with sample charts */}
         <section className="pt-10" id="analytics">
           <h2 className="text-olivegreen text-3xl font-bold leading-tight tracking-tight mb-6">Powerful Analytics at your fingertips</h2>
           <div className="flex flex-wrap gap-6">
+            {/* Profile Visits chart */}
             <div className="flex min-w-[320px] flex-1 flex-col gap-4 rounded-xl border border-olivetan bg-white p-8">
               <div>
                 <p className="text-olivedarkgreen text-sm font-semibold uppercase">Profile Visits</p>
@@ -101,6 +121,7 @@ export default function ForBusinesses() {
                   </p>
                 </div>
               </div>
+              {/* SVG line chart for visits */}
               <div className="flex min-h-[180px] flex-1 flex-col gap-4 py-4">
                 <svg fill="none" height="140" preserveAspectRatio="none" viewBox="-3 0 478 150" width="100%" xmlns="http://www.w3.org/2000/svg">
                   <path d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25V149H326.769H0V109Z" fill="url(#paint0_linear)"></path>
@@ -117,6 +138,8 @@ export default function ForBusinesses() {
                 </div>
               </div>
             </div>
+
+            {/* Review Growth chart */}
             <div className="flex min-w-[320px] flex-1 flex-col gap-4 rounded-xl border border-olivetan bg-white p-8">
               <div>
                 <p className="text-olivedarkgreen text-sm font-semibold uppercase">Review Growth</p>
@@ -127,6 +150,7 @@ export default function ForBusinesses() {
                   </p>
                 </div>
               </div>
+              {/* Bar chart for review growth */}
               <div className="grid min-h-[140px] grid-flow-col gap-4 grid-rows-[1fr_auto] items-end justify-items-center px-2 mt-4">
                 <div className="bg-olivesepia/20 rounded-t-md w-full hover:bg-olivesepia/40 transition-colors" style={{height: '90%'}}></div>
                 <p className="text-olivedarkgreen text-[11px] font-bold">WK 1</p>
@@ -140,13 +164,17 @@ export default function ForBusinesses() {
             </div>
           </div>
         </section>
+
+        {/* Success stories section with testimonials */}
         <section className="py-20 bg-olivesepia/5 rounded-lg mb-24 overflow-hidden" id="success">
           <div className="px-8 md:px-16 flex flex-col gap-12">
             <div className="flex flex-col gap-2 items-center text-center">
               <h2 className="text-olivegreen text-3xl font-bold">Success Stories</h2>
               <p className="text-olivedarkgreen">Hear from the business owners who grow with us.</p>
             </div>
+            {/* Testimonials grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* First testimonial */}
               <div className="bg-white p-8 rounded-lg shadow-sm flex flex-col gap-6">
                 <div className="flex items-center space-x-1">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -164,6 +192,8 @@ export default function ForBusinesses() {
                   </div>
                 </div>
               </div>
+
+              {/* Second testimonial */}
               <div className="bg-white p-8 rounded-lg shadow-sm flex flex-col gap-6">
                 <div className="flex items-center space-x-1">
                     {Array.from({ length: 5 }).map((_, i) => (

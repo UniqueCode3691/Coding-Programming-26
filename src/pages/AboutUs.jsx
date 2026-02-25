@@ -1,3 +1,7 @@
+// AboutUs.jsx - About Us page component for NearMeer.
+// This component displays information about the NearMeer platform, including mission, stats, team members, and a call to action.
+// It uses static content with images and links to other pages.
+
 import React from 'react'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
@@ -9,12 +13,17 @@ import checkcircle from '../assets/icons/checkcircle.png'
 import person from '../assets/icons/person.png'
 import map from '../assets/icons/map.png'
 
+// AboutUs functional component.
+// Renders the About Us page with hero section, philosophy, stats, team, and CTA.
 export default function AboutUs() {
   return (
     <>
+      {/* Include the Header component at the top of the page. */}
       <Header />
 
+      {/* Main content container with max width and padding. */}
       <main className="mx-auto max-w-6xl px-6 pb-20 bg-white text-olivedarkgreen">
+        {/* Hero section with background image and overlay. */}
         <section className="pt-4">
           <div
             className="relative overflow-hidden rounded-[34px] shadow-soft"
@@ -25,8 +34,10 @@ export default function AboutUs() {
               backgroundPosition: 'center',
             }}
           >
+            {/* Dark overlay for text readability. */}
             <div className="absolute inset-0 bg-olivedarkgreen/55"></div>
 
+            {/* Hero content with title, description, and CTA button. */}
             <div className="relative flex min-h-[440px] flex-col items-center justify-center px-6 text-center">
               <h1 className="max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl">
                 Connecting Neighbors,<br />
@@ -38,6 +49,7 @@ export default function AboutUs() {
                 vibrant communities they serve.
               </p>
 
+              {/* Link to businesses page as CTA. */}
               <Link to="/businesses" className="mt-7 rounded-full bg-olivegreen px-6 py-3 text-sm font-semibold text-olivetan shadow-sm hover:brightness-95" href="#">
                 Explore Near You
               </Link>
@@ -45,6 +57,7 @@ export default function AboutUs() {
           </div>
         </section>
 
+        {/* Philosophy section explaining the core mission. */}
         <section className="pt-14">
           <div className="text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-olivegreen">Our Core Philosophy</p>
@@ -53,6 +66,7 @@ export default function AboutUs() {
             </h2>
           </div>
 
+          {/* Grid layout with image and text about empowering small businesses. */}
           <div className="mt-10 grid items-center gap-10 rounded-[28px] bg-olivetan/50 border border-olivetan p-8 sm:p-10 md:grid-cols-2">
             <div
               className="h-56 w-full overflow-hidden rounded-2xl"
@@ -77,8 +91,11 @@ export default function AboutUs() {
             </div>
           </div>
         </section>
+
+        {/* Stats section showing key metrics. */}
         <section className="pt-12">
           <div className="grid gap-6 md:grid-cols-3">
+            {/* Stat card for local shops joined. */}
             <div className="rounded-2xl border border-olivesepia/30 bg-olivetan p-7 text-center shadow-sm hover:shadow-md transition-shadow">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center">
                 <img src={map} className="w-6 h-6 text-olivesepia" alt="Map Icon" />
@@ -87,6 +104,7 @@ export default function AboutUs() {
               <p className="mt-2 text-2xl font-extrabold text-olivegreen">1,200+</p>
             </div>
 
+            {/* Stat card for trusted reviews. */}
             <div className="rounded-2xl border border-olivesepia/30 bg-olivetan p-7 text-center shadow-sm hover:shadow-md transition-shadow">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center">
                 <img src={checkcircle} className="w-6 h-6 text-olivesepia" alt="Check Icon" />
@@ -95,6 +113,7 @@ export default function AboutUs() {
               <p className="mt-2 text-2xl font-extrabold text-olivegreen">25k+</p>
             </div>
 
+            {/* Stat card for active neighbors. */}
             <div className="rounded-2xl border border-olivesepia/30 bg-olivetan p-7 text-center shadow-sm hover:shadow-md transition-shadow">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center">
                 <img src={person} className="w-6 h-6 text-olivesepia" alt="Person Icon" />
@@ -104,11 +123,15 @@ export default function AboutUs() {
             </div>
           </div>
         </section>
+
+        {/* Team section introducing the creators. */}
         <section className="pt-14">
           <h2 className="text-3xl font-bold leading-tight tracking-tight text-olivedarkgreen">Meet the Neighbors</h2>
           <p className="mt-1 text-lg text-olivegreen">The passionate team behind the NearMeer platform.</p>
 
+          {/* Grid of team member cards. */}
           <div className="mt-10 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Team member: Salil Karkhanis */}
             <div className="flex flex-col items-center gap-4 text-center">
               <div
                 className="size-48 overflow-hidden rounded-full border-4 border-olivegreen p-1"
@@ -127,6 +150,7 @@ export default function AboutUs() {
               </div>
             </div>
 
+            {/* Team member: Samanyu Mergu */}
             <div className="flex flex-col items-center gap-4 text-center">
               <div
                 className="size-48 overflow-hidden rounded-full border-4 border-olivegreen/40 p-1"
@@ -145,6 +169,7 @@ export default function AboutUs() {
               </div>
             </div>
 
+            {/* Team member: Naman Kapoor */}
             <div className="flex flex-col items-center gap-4 text-center">
               <div
                 className="size-48 overflow-hidden rounded-full border-4 border-olivegreen/40 p-1"
@@ -164,11 +189,14 @@ export default function AboutUs() {
             </div>
           </div>
         </section>
+
+        {/* Call to action section at the bottom. */}
         <section className="pt-14">
           <div className="overflow-hidden rounded-[32px] bg-olivedarkgreen px-6 py-14 text-center text-white shadow-soft sm:px-10">
             <h2 className="text-4xl font-extrabold leading-tight tracking-tight">Ready to discover your<br />neighborhood?</h2>
             <p className="mx-auto mt-5 max-w-xl text-sm text-white/75">Join thousands of neighbors who are already discovering the best local secrets.</p>
 
+            {/* CTA buttons for sign up and contact. */}
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link to="/sign-up" className="rounded-full bg-olivesepia px-7 py-3 text-sm font-semibold text-white hover:bg-olivesepia/90 transition-colors">Get Started</Link>
               <a className="rounded-full border-2 border-white bg-transparent px-7 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-colors" href="#">Contact Us</a>
@@ -177,6 +205,7 @@ export default function AboutUs() {
         </section>
       </main>
 
+      {/* Include the Footer component at the bottom. */}
       <Footer />
     </>
   )

@@ -113,8 +113,8 @@ const SignUp = () => {
             {/* CAPTCHA widget for security */}
             <div className='mx-auto mt-3'>  {/* Container for CAPTCHA */}
                 <Turnstile 
-                    siteKey={import.meta.env.VITE_CAPTCHA_SITE_KEY}  {/* Site key from environment variables */}
-                    onSuccess={(token) => setCaptchaToken(token)}   {/* Callback to set CAPTCHA token on success */}
+                    siteKey={import.meta.env.VITE_CAPTCHA_SITE_KEY}  // Site key from environment variables 
+                    onSuccess={(token) => setCaptchaToken(token)}   // Callback to set CAPTCHA token on success
                 />
             </div>
             {/* Submit button */}

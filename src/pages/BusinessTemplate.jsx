@@ -342,7 +342,7 @@ export default function BusinessTemplate() {
                                         </button>
                                     </form>
                                 ) : (
-                                    {/* Sign in prompt for unauthenticated users */}
+                                    // Sign in prompt for unauthenticated users
                                     <div className="p-6 bg-gray-100 rounded-xl text-center border border-dashed border-gray-300">
                                         <p className="text-gray-600">Please <Link to="/sign-in" className="text-olivegreen font-bold underline">sign in</Link> to leave a review.</p>
                                     </div>

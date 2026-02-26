@@ -75,6 +75,8 @@ In addition to the npm packages, the application consumes a few public APIs:
 
 - **Image placeholder service** – placeholder photos are generated via [loremflickr](https://loremflickr.com) in pages like `Deals.jsx` (`https://loremflickr.com/400/300/{category}?lock={id}`) and other dynamic image needs.
 
+- **Ticketmaster Discovery API** – used in `Events.jsx` to fetch live event listings based on geolocation and selected category. Requests rely on a valid API key stored in `VITE_TICKETMASTER_KEY`; network errors (e.g. connection resets) are retried and surfaced to the user as error messages.
+
 These APIs are free to use but may have rate limits; the code includes simple retry/backoff for Overpass calls.
 
 ---

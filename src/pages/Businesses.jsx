@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import Header from './Components/Header';
 import Footer from './Components/Footer';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom'
 import { supabase } from '../SupabaseClient'
@@ -23,6 +23,7 @@ function Businesses() {
   const [userCoords, setUserCoords] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const location = useLocation()
+  const navigate = useNavigate();
   const fetchLock = React.useRef(false);
   const [appliedFilters, setAppliedFilters] = useState({
     categories: ['Restaurants'],
@@ -181,10 +182,12 @@ function Businesses() {
     }
   };
   // Function to handle search form submission.
-  // Currently clears the query (placeholder functionality).
+  // Navigate to the businesses route with a `search` query parameter
+  // which will trigger the effect above and perform a Supabase lookup.
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim()) {
+      navigate(`/businesses?search=${encodeURIComponent(query.trim())}`);
       setQuery('');
     }
   };
@@ -211,6 +214,8 @@ function Businesses() {
 
   useEffect(() => {
     const q = new URLSearchParams(location.search).get('search')
+    // keep input in sync with query param
+    setQuery(q || '');
     if (q && q.trim()) {
       const runSearch = async () => {
         setLoading(true)

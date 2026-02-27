@@ -62,7 +62,7 @@ export default function Events() {
       url += `&classificationName=${encodeURIComponent(category)}`;
     }
 
-    // attempt fetch with retries for transient network errors
+    // attempt fetch with retries for rate limiting network errors
     const maxAttempts = 3;
     let attempt = 0;
     let data = null;

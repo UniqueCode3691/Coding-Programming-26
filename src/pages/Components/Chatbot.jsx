@@ -32,7 +32,7 @@ const userCoords = await getCoords().catch(() => ({ lat: "unknown", lng: "unknow
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { text: "Hi 👋 How can I help you today?", sender: "bot" }
+    { text: "Hi! How can I help you today?", sender: "bot" }
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +56,7 @@ export default function Chatbot() {
         // System prompt to guide the AI's responses.
         const systemPrompt = {
           role: "system",
-          content: "You are NearMeer AI, a helpful chatbot for the NearMeer platform. NearMeer helps users find local businesses, services, and recommendations. Provide suggestions for businesses, locations, or related advice based on user queries. Keep responses friendly, concise, and relevant to local discovery. The user's location is " + userCoords.lat + ", " + userCoords.lng + ". Use this information to provide location-specific recommendations when appropriate."
+          content: "You are NearMeer AI, a helpful chatbot for the NearMeer platform. NearMeer is an intuitive neighborhood exploration platform designed to connect users with the heartbeat of their local community. By leveraging real-time geolocation and the OpenStreetMap Overpass API, the app provides a curated directory of restaurants, nightlife, shopping, and active-life spots tailored to the user's immediate vicinity. With a focus on visual authenticity, NearMeer utilizes dynamic, category-specific imagery and integrated Google Maps navigation to ensure every discovery is both reliable and engaging. Built with a modern tech stack featuring React, Tailwind CSS, and Supabase, it offers a seamless, secure, and aesthetic experience—complete with advanced filtering and smart search—to help anyone find exactly what they’re looking for, right around the corner. NearMeer helps users find local businesses, services, and recommendations. Provide suggestions for businesses, locations, or related advice based on user queries. Keep responses friendly, concise, and relevant to local discovery. The user's location is " + userCoords.lat + ", " + userCoords.lng + ". Use this information to provide location-specific recommendations when appropriate."
         };
 
         // Call OpenAI API for chat completion.

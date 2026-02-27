@@ -45,44 +45,59 @@ export default function Events() {
   // Function to fetch events from Ticketmaster API.
   // Takes optional lat/lon for location-based search and category for filtering.
   const fetchEvents = async (lat = coords.lat, lon = coords.lon, category = selectedCategory) => {
-    try {
-      setLoading(true);
-      setError(null);
-      setCurrentIndex(0); // Reset carousel to first slide
+    setLoading(true);
+    setError(null);
+    setCurrentIndex(0); // Reset carousel to first slide
 
-      // Build API URL with base parameters.
-      let url = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&size=15&sort=date,asc`;
+    // Build API URL with base parameters.
+    let url = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&size=15&sort=date,asc`;
 
-      // Add location parameters if coordinates available.
-      if (lat && lon) {
-        url += `&latlong=${lat},${lon}&radius=50&unit=miles`;
-      }
-
-      // Add category filter if not "All".
-      if (category !== "All") {
-        url += `&classificationName=${encodeURIComponent(category)}`;
-      }
-
-      // Fetch data from API.
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("API request failed");
-
-      const data = await response.json();
-
-      // Process response data.
-      if (data._embedded) {
-        setEvents(data._embedded.events);
-        // Extract city name from first event for display.
-        const city = data._embedded.events[0]._embedded?.venues?.[0]?.city?.name;
-        if (city) setLocationName(city);
-      } else {
-        setEvents([]);
-      }
-    } catch (err) {
-      setError("Could not load events for this category.");
-    } finally {
-      setLoading(false);
+    // Add location parameters if coordinates available.
+    if (lat && lon) {
+      url += `&latlong=${lat},${lon}&radius=50&unit=miles`;
     }
+
+    // Add category filter if not "All".
+    if (category !== "All") {
+      url += `&classificationName=${encodeURIComponent(category)}`;
+    }
+
+    // attempt fetch with retries for transient network errors
+    const maxAttempts = 3;
+    let attempt = 0;
+    let data = null;
+
+    while (attempt < maxAttempts) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`API request failed (status ${response.status})`);
+        }
+        data = await response.json();
+        break;
+      } catch (err) {
+        console.warn(`Ticketmaster fetch attempt ${attempt + 1} failed:`, err.message || err);
+        attempt += 1;
+        if (attempt < maxAttempts) {
+          // exponential backoff
+          await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt)));
+          continue;
+        }
+        // final failure
+        setError("Unable to reach Ticketmaster API at this time. Please try again later.");
+      }
+    }
+
+    if (data && data._embedded) {
+      setEvents(data._embedded.events);
+      // Extract city name from first event for display.
+      const city = data._embedded.events[0]._embedded?.venues?.[0]?.city?.name;
+      if (city) setLocationName(city);
+    } else if (data && !data._embedded) {
+      setEvents([]);
+    }
+
+    setLoading(false);
   };
 
   // Effect to fetch events on component mount and API key availability.

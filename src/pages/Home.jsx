@@ -105,8 +105,6 @@ const Home = () => {
         <div className='p-15 z-0 bg-olivetan'>
           <UserLocation onLocationFound={(c) => setCoords(c)} coords={coords} />
         </div>
-
-        <Chatbot />
         <Footer />
     </>
   )

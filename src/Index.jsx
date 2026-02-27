@@ -5,6 +5,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
+import Chatbot from './pages/Components/Chatbot.jsx'
 import App from './App.jsx'
 
 // Create a root for the React application and render the App component.
@@ -13,5 +14,6 @@ import App from './App.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
+    <Chatbot />
   </StrictMode>,
 )

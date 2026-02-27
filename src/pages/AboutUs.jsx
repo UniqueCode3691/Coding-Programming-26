@@ -204,7 +204,6 @@ export default function AboutUs() {
           </div>
         </section>
       </main>
-
       {/* Include the Footer component at the bottom. */}
       <Footer />
     </>

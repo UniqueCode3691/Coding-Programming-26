@@ -7,6 +7,8 @@
 A public deployment of the project is available at: [https://coding-programming-26.pages.dev](https://coding-programming-26.pages.dev)
 ---
 
+IMAGES ARE FROM GOOGLE ICONS(https://fonts.google.com/icons) AND AI-GENERATED(https://deepai.org/machine-learning-model/text2img)
+
 ## Installation & Setup
 
 1. **Clone the repository**

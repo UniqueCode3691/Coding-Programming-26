@@ -199,7 +199,7 @@ export default function AboutUs() {
             {/* CTA buttons for sign up and contact. */}
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link to="/sign-up" className="rounded-full bg-olivesepia px-7 py-3 text-sm font-semibold text-white hover:bg-olivesepia/90 transition-colors">Get Started</Link>
-              <a className="rounded-full border-2 border-white bg-transparent px-7 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-colors" href="#">Contact Us</a>
+              <a className="rounded-full border-2 border-white bg-transparent px-7 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-colors" href="mailto:samanyu3691@gmail.com">Contact Us</a>
             </div>
           </div>
         </section>

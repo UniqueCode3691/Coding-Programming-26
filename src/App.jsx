@@ -21,8 +21,6 @@ import AddProperty from './pages/AddProperty'
 import NotFound from './pages/NotFound'
 import Events from './pages/Events'
 import BusinessTemplate from './pages/BusinessTemplate'
-import PrivacyPolicy from './pages/PrivacyPolicy'
-import TermsOfService from './pages/ToS'
 
 // Define the main App component.
 // This component serves as the root of the application and sets up the routing structure.
@@ -48,8 +46,6 @@ export default function App() {
           <Route path="/profile" element={<NeighborRoute><Profile /></NeighborRoute>} />
           {/* Route for about us page */}
           <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
           {/* Route for businesses information page */}
           <Route path="/for-businesses" element={<ForBusinesses />} />
           {/* Protected route for deals page, only for authenticated users */}

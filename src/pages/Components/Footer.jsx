@@ -17,7 +17,7 @@ const Footer = () => {
         {/* Copyright notice on the left. */}
         <p className='ml-5'>©2026 NearMeer. All Rights Reserved.</p>
         {/* Privacy and terms links in the center. */}
-        <p><Link className='underline'>Privacy Policy</Link> | <Link className='underline'>Terms of Service</Link></p>
+        <p><Link className='underline'>Privacy Policy</Link> | <Link className='underline'>Terms of Service</Link> | <a href="https://github.com/UniqueCode3691/Coding-Programming-26" className='underline'>Help</a></p>
         {/* Social media icons on the right. */}
         <div className='flex flex-row items-center'>
             <Link><img src={FB_Image} className='w-8' alt="Facebook" /></Link>

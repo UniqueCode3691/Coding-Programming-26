@@ -603,10 +603,22 @@ function Businesses() {
             paginatedBusinesses.length > 0 ? 
               paginatedBusinesses.map(business => {
                 const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name)}&query_place_id=${business.lat},${business.lon}`;
+                const { toggleFavorite, favoriteIds } = UserAuth();
+                const isFavorited = favoriteIds.includes(business.id);
                 return (
                 <div key={business.id} className="business-card bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1">
                   <div className="relative h-48 overflow-hidden">
                     <img alt={business.name} className="business-image w-full h-full object-cover transition-transform duration-500" src={business.image}/>
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleFavorite(business);
+                      }}
+                      className="absolute top-3 right-3 p-2 bg-white/90 rounded-full hover:scale-110 transition text-olivegreen shadow-md"
+                    >
+                      <span className={`material-icons text-xl ${isFavorited ? 'text-red-500' : 'text-olivegreen'}`}>
+          {isFavorited ? 'favorite' : 'favorite_border'}</span>
+                    </button>
                   </div>
                   <div className="p-5">
                     <Link to={`/business/${business.id}`} state={{ businessData: business }} className="flex justify-between items-start mb-2">

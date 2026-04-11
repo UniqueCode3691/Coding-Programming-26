@@ -61,7 +61,7 @@ export default function App() {
           {/* Protected route for adding property, only for business accounts */}
           <Route path="/add-property" element={<BusinessRoute><AddProperty /></BusinessRoute>} />
           {/* Route for events page */}
-          <Route path="/events" element={<Events />} />
+          <Route path="/events" element={<NeighborRoute><Events /></NeighborRoute>} />
           {/* Route for individual business template page, with dynamic id */}
           <Route path="/business/:id" element={<BusinessTemplate />} />
           {/* Catch-all route for 404 not found page */}

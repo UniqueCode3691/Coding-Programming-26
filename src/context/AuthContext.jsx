@@ -16,7 +16,21 @@ export const AuthContextProvider = ({children}) => {
     const [session, setSession] = useState(undefined)
     // State to indicate if authentication is loading.
     const [loading, setLoading] = useState(true)
-
+    const [favoriteIds, setFavoriteIds] = useState([]);
+    useEffect(() => {
+        if (session?.user) {
+            const fetchFavoriteIds = async () => {
+                const { data } = await supabase
+                    .from('favorites')
+                    .select('business_id')
+                    .eq('user_id', session.user.id);
+                setFavoriteIds(data?.map(f => f.business_id) || []);
+            };
+            fetchFavoriteIds();
+        } else {
+            setFavoriteIds([]);
+        }
+    }, [session]);
     // Function to sign up a new user.
     // Takes name, email, password, captcha token, and account type.
     // Signs up with Supabase auth, then upserts the profile in the profiles table.
@@ -214,10 +228,31 @@ export const AuthContextProvider = ({children}) => {
         }
     };
 
+    const toggleFavorite = async (business) => {
+        if (!session?.user) return { error: "Please login first" };
+
+        const isFavorited = favoriteIds.includes(business.id);
+
+        if (isFavorited) {
+            await supabase.from('favorites').delete().eq('user_id', session.user.id).eq('business_id', business.id);
+            setFavoriteIds(prev => prev.filter(id => id !== business.id));
+            return { action: 'removed' };
+        } else {
+            await supabase.from('favorites').insert({
+                user_id: session.user.id,
+                business_id: business.id,
+                business_name: business.name,
+                business_data: business
+            });
+            setFavoriteIds(prev => [...prev, business.id]);
+            return { action: 'added' };
+        }
+    };
+
     // Provide the context value to child components.
     // Includes session, loading, and all auth methods.
     return (
-        <AuthContext.Provider value={{ session, loading, signUpNewUser, signInUser, signInWithGoogle, signOut, sendMagicLink }}>
+        <AuthContext.Provider value={{ session, loading, signUpNewUser, signInUser, signInWithGoogle, signOut, sendMagicLink, favoriteIds, toggleFavorite }}>
             {children}
         </AuthContext.Provider>
     )

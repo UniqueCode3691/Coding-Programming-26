@@ -2,10 +2,11 @@
 // This component displays user information, allows bio editing, and provides navigation between reviews, saved items, and personal settings.
 // Uses Supabase auth for user data and profile updates.
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './Components/Header'
 import { UserAuth } from '../context/AuthContext'
 import { supabase } from '../SupabaseClient'
+import { Link } from 'react-router-dom'
 
 // Profile functional component.
 // Manages user profile display and bio editing functionality.
@@ -19,6 +20,8 @@ const Profile = () => {
 
   // State for selected tab (reviews, saved, personal).
   const [selected, setSelected] = useState("r");
+  const [favorites, setFavorites] = useState([]);
+  const [userReviews, setUserReviews] = useState([]);
 
   // Function to update user profile with new bio.
   // Validates bio length and updates Supabase auth metadata.
@@ -44,6 +47,29 @@ const Profile = () => {
       year: 'numeric',
     }).format(date);
   };
+
+  useEffect(() => {
+    if (!session?.user) return;
+
+    const fetchUserData = async () => {
+      // 1. Fetch Favorites
+      const { data: favs } = await supabase
+        .from('favorites')
+        .select('*')
+        .eq('user_id', session.user.id);
+      setFavorites(favs || []);
+
+      // 2. Fetch User Reviews from your existing table
+      const { data: revs } = await supabase
+          .from('reviews') // Your existing table name
+          .select('*')
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: false });
+      setUserReviews(revs || []);
+    };
+
+    fetchUserData();
+  }, [session]);
 
   return (
     <>
@@ -79,10 +105,35 @@ const Profile = () => {
         </div>
 
         {/* Content area for selected tab */}
-        <div className='flex flex-col items-center justify-center mt-10'>
-          {selected == "p" &&
-          <p className=''>Change Bio</p>}
-        </div>
+        <div className='flex flex-col items-center justify-center mt-10 w-full max-w-2xl mx-auto px-4'>
+        {/* REVIEWS CONTENT */}
+        {selected === "r" && userReviews.map((rev) => (
+          <div key={rev.id} className="w-full p-4 border-b border-olivegreen/20 mb-4 bg-white rounded-lg">
+            <h4 className="font-bold text-olivegreen text-lg">{rev.business_name}</h4>
+            <div className="flex text-yellow-500 mb-2">
+               {/* Star rendering logic here */}
+               <span className="font-bold mr-2">{rev.rating}/5</span>
+            </div>
+            <p className="text-olivesepia italic">"{rev.content}"</p>
+            <p className="text-xs text-gray-400 mt-2">{new Date(rev.created_at).toLocaleDateString()}</p>
+          </div>
+        ))}
+
+        {/* FAVORITES (SAVED) CONTENT */}
+        {selected === "s" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+            {favorites.map((fav) => (
+              <div key={fav.id} className="bg-white rounded-xl p-3 border border-olivegreen/10 shadow-sm">
+                <img src={fav.business_data.image} className="h-32 w-full object-cover rounded-md mb-2" />
+                <h4 className="font-bold text-olivegreen">{fav.business_name}</h4>
+                <Link to={`/business/${fav.business_id}`} state={{ businessData: fav.business_data }} className="text-xs underline text-olivedarkgreen">
+                  View Business
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </>
   )
 }

@@ -98,9 +98,7 @@ const Profile = () => {
           {/* Tab navigation for profile sections */}
           <div className='flex flex-row justify-center space-x-10 text-olivegreen font-semibold mt-30 text-lg'>
             <button onClick={() => setSelected("r")} className={`hover:underline hover:underline-offset-16 z-10 hover:decoration-3 decoration-olivegreen ${selected == "r" ? 'underline-offset-16 decoration-3 transform transition-transform duration-500 ease-in-out underline text-2xl' : 'transform transition-transform duration-200 ease-in-out hover:scale-110'}`}>Reviews</button>
-            <button onClick={() => setSelected("s")} className={`hover:underline hover:underline-offset-16 z-10 hover:decoration-3 decoration-olivegreen ${selected == "s" ? 'underline-offset-16 decoration-3 transform transition-transform duration-500 ease-in-out underline text-2xl' : 'transform transition-transform duration-200 ease-in-out hover:scale-110'}`}>Saved</button>
-            <button onClick={() => setSelected("p")} className={`hover:underline hover:underline-offset-16 z-10 hover:decoration-3 decoration-olivegreen ${selected == "p" ? 'underline-offset-16 decoration-3 transform transition-transform duration-500 ease-in-out underline text-2xl' : 'transform transition-transform duration-200 ease-in-out hover:scale-110'}`}>Personal</button>
-          </div>
+            <button onClick={() => setSelected("s")} className={`hover:underline hover:underline-offset-16 z-10 hover:decoration-3 decoration-olivegreen ${selected == "s" ? 'underline-offset-16 decoration-3 transform transition-transform duration-500 ease-in-out underline text-2xl' : 'transform transition-transform duration-200 ease-in-out hover:scale-110'}`}>Saved</button>          </div>
           <hr className='border-2 w-3/5 mt-2 border-olivegreen/50 rounded-full' />
         </div>
 

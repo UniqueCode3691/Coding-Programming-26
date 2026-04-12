@@ -10,18 +10,23 @@ import { UserAuth } from '../context/AuthContext';
 const NeighborRoute = ({ children }) => {
   const { session, loading } = UserAuth();
 
-  // Show loading while authentication is being checked.
-  if (loading) return <div>Loading...</div>;
+  // If session is explicitly null and not loading, we know they are logged out
+  if (!loading && !session) {
+    return <Navigate to="/sign-in" />;
+  }
 
-  // Redirect to sign-in if not authenticated.
-  if (!session) return <Navigate to="/sign-in" />;
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-olivedarkgreen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      </div>
+    );
+  }
 
-  // Redirect business accounts to their dashboard.
   if (session?.user?.user_metadata?.account_type === 'business') {
     return <Navigate to="/businesses-dashboard" />;
   }
 
-  // Render the protected children if user is authenticated and has user account type.
   return children;
 };
 

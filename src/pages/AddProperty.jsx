@@ -82,17 +82,9 @@ export default function AddProperty() {
 
       // Process each location for submission.
       const rows = locations.map((loc, index) => {
-        // Generate search keyword for image.
-        const searchKeyword = `${loc.category || 'business'},${loc.name}`.replace(/\s+/g, '').toLowerCase()
-
-        // Generate placeholder image URL using LoremFlickr.
-        const generatedImage = `https://loremflickr.com/400/300/${searchKeyword}?lock=${Date.now() + index}`
-
-        // Create row object for database insertion.
         return {
           name: loc.name,
           category: loc.category,
-          image: generatedImage,
           phone: loc.phone,
           address: loc.address,
           business_id: businessId,

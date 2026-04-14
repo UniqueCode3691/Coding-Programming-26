@@ -2,7 +2,7 @@
 // This component provides a chat interface using OpenAI's API.
 // It allows users to ask questions and get responses related to local businesses and recommendations.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import OpenAI from "openai";
 
 // Initialize OpenAI client with API key from environment variables.
@@ -24,9 +24,6 @@ export const getCoords = () => {
   });
 };
 
-// Get user coordinates, default to unknown if failed.
-const userCoords = await getCoords().catch(() => ({ lat: "unknown", lng: "unknown" }));
-
 // Main Chatbot component.
 // Manages chat state, sends messages to OpenAI, and renders the chat UI.
 export default function Chatbot() {
@@ -36,6 +33,38 @@ export default function Chatbot() {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [userCoords, setUserCoords] = useState({ lat: "unknown", lng: "unknown" });
+
+  // Get user coordinates when component mounts
+  useEffect(() => {
+    const fetchCoords = async () => {
+      try {
+        const coords = await getCoords();
+        setUserCoords(coords);
+      } catch (error) {
+        console.log("Could not get user location:", error.message);
+        // Keep default "unknown" coordinates
+      }
+    };
+
+    fetchCoords();
+
+    // Test OpenAI API key on component mount
+    const testApiKey = async () => {
+      try {
+        if (import.meta.env.VITE_OPENAI_API_KEY) {
+          console.log("OpenAI API key found, testing connection...");
+          // Simple test call to verify API key works
+          await openai.models.list();
+          console.log("OpenAI API connection successful");
+        }
+      } catch (error) {
+        console.error("OpenAI API test failed:", error.message);
+      }
+    };
+
+    testApiKey();
+  }, []);
 
   // Function to handle sending a message.
   // Adds user message, sends to OpenAI, adds bot response.
@@ -47,6 +76,15 @@ export default function Chatbot() {
       setIsLoading(true);
 
       try {
+        // Check if OpenAI API key is available and properly formatted
+        if (!import.meta.env.VITE_OPENAI_API_KEY) {
+          throw new Error("OpenAI API key not found. Please check your environment variables.");
+        }
+
+        if (!import.meta.env.VITE_OPENAI_API_KEY.startsWith('sk-')) {
+          throw new Error("OpenAI API key appears to be malformed. Please check your API key format.");
+        }
+
         // Prepare conversation history for OpenAI.
         const conversation = messages.concat(userMessage).map(msg => ({
           role: msg.sender === "user" ? "user" : "assistant",
@@ -59,20 +97,54 @@ export default function Chatbot() {
           content: "You are NearMeer AI, a helpful chatbot for the NearMeer platform. NearMeer is an intuitive neighborhood exploration platform designed to connect users with the heartbeat of their local community. By leveraging real-time geolocation and the OpenStreetMap Overpass API, the app provides a curated directory of restaurants, nightlife, shopping, and active-life spots tailored to the user's immediate vicinity. With a focus on visual authenticity, NearMeer utilizes dynamic, category-specific imagery and integrated Google Maps navigation to ensure every discovery is both reliable and engaging. Built with a modern tech stack featuring React, Tailwind CSS, and Supabase, it offers a seamless, secure, and aesthetic experience—complete with advanced filtering and smart search—to help anyone find exactly what they’re looking for, right around the corner. NearMeer helps users find local businesses, services, and recommendations. Provide suggestions for businesses, locations, or related advice based on user queries. Keep responses friendly, concise, and relevant to local discovery. The user's location is " + userCoords.lat + ", " + userCoords.lng + ". Use this information to provide location-specific recommendations when appropriate."
         };
 
-        // Call OpenAI API for chat completion.
         const response = await openai.chat.completions.create({
-          model: "gpt-4",
+          model: "gpt-3.5-turbo", // Changed from gpt-4 to gpt-3.5-turbo for better reliability
           messages: [systemPrompt, ...conversation],
           max_tokens: 150,
+          temperature: 0.7, // Add some creativity to responses
         });
+
+        console.log("OpenAI response received:", response);
+
+        if (!response.choices || !response.choices[0] || !response.choices[0].message) {
+          throw new Error("Invalid response format from OpenAI API");
+        }
 
         const botText = response.choices[0].message.content;
         const botMessage = { text: botText, sender: "bot" };
         setMessages(prev => [...prev, botMessage]);
       } catch (error) {
-        console.error("AI API error");
-        const errorMessage = { text: "Sorry, I'm having trouble responding right now. Please try again.", sender: "bot" };
-        setMessages(prev => [...prev, errorMessage]);
+        console.error("AI API error:", error);
+        console.error("Error details:", {
+          message: error.message,
+          status: error.status,
+          code: error.code,
+          type: error.type
+        });
+
+        let errorMessage = "Sorry, I'm having trouble responding right now. Please try again.";
+
+        // Provide more specific error messages for debugging
+        if (error.message?.includes("API key")) {
+          errorMessage = "Configuration error: OpenAI API key is missing or invalid.";
+        } else if (error.message?.includes("rate limit") || error.status === 429) {
+          errorMessage = "I'm receiving too many requests right now. Please try again in a moment.";
+        } else if (error.message?.includes("network") || error.message?.includes("fetch") || error.code === 'ECONNREFUSED') {
+          errorMessage = "Network error. Please check your internet connection.";
+        } else if (error.status === 401) {
+          errorMessage = "Authentication error: Please check your OpenAI API key.";
+        } else if (error.status === 403) {
+          errorMessage = "Access denied: Your OpenAI API key may not have the required permissions.";
+        } else if (error.status === 400) {
+          errorMessage = "Invalid request: There may be an issue with the message format.";
+        } else if (error.status === 500 || error.status === 502 || error.status === 503) {
+          errorMessage = "OpenAI service is temporarily unavailable. Please try again later.";
+        } else if (error.message?.includes("quota") || error.message?.includes("billing")) {
+          errorMessage = "API quota exceeded. Please check your OpenAI account billing.";
+        }
+
+        const botErrorMessage = { text: errorMessage, sender: "bot" };
+        setMessages(prev => [...prev, botErrorMessage]);
       } finally {
         setIsLoading(false);
       }
